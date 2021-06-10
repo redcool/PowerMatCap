@@ -34,7 +34,7 @@ Shader "Unlit/PowerMatCap"
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
-            #include "../Lib/TangentLib.cginc"
+            #include "Lib/TangentLib.cginc"
 
             struct appdata
             {
