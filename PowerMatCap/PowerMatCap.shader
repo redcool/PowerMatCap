@@ -50,6 +50,7 @@
             #include "UnityCG.cginc"
             #include "UnityStandardUtils.cginc"
             #include "Lib/TangentLib.cginc"
+            #include "Lib/PowerMatcapInput.cginc"
 
             struct appdata
             {
@@ -68,29 +69,6 @@
                 TANGENT_SPACE_DECLARE(2,3,4);
                 float3 reflectDir:TEXCOORD5;
             };
-
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
-            float4 _Color;
-
-            float _NormalMapOn;
-            sampler2D _NormalMap;
-            float _NormalScale;
-            float4 _NormalMap_ST;
-
-            sampler2D _DetailNormalMap;
-            float _DetailNormalScale;
-            float4 _DetailNormalMap_ST;
-
-            sampler2D _MatCap;
-            float _MatCapScale;
-            sampler2D _EnvMask;
-
-            float _EnvMapOn;
-            samplerCUBE _EnvMap;
-            float _EnvMapIntensity;
-            float3 _EnvMapOffset;
-            float _Roughness;
 
             v2f vert (appdata v)
             {
@@ -111,15 +89,7 @@
 
                 float2 matUV = (normalView.xy);
                 float4 matCap = tex2D(_MatCap,matUV);
-                return matCap * _MatCapScale;
-            }
-
-            float3 TrangentToWorld(float3 tn,float3 tSpace0,float3 tSpace1,float3 tSpace2){
-                return normalize(float3(
-                    dot(tSpace0.xyz,tn),
-                    dot(tSpace1.xyz,tn),
-                    dot(tSpace2.xyz,tn)
-                ));
+                return matCap;
             }
 
             float3 BlendNormal(float3 a,float3 b){
@@ -150,7 +120,7 @@
                 }
                 
                 float wnl = dot(_WorldSpaceLightPos0.xyz,normal) * 0.5+0.5;;
-                float4 matCap = CalcMatCap(normal);
+                float4 matCap = CalcMatCap(normal) * _MatCapScale;
 
                 // mask
                 float4 maskTex = tex2D(_EnvMask,input.uv);
