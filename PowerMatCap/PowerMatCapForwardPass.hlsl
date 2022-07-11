@@ -63,8 +63,8 @@ half4 frag (v2f input) : SV_Target
         float2 normalUV = input.uv * _NormalMap_ST.xy + _NormalMap_ST.zw;
         float2 detailUV = input.uv *  _DetailNormalMap_ST.xy + _DetailNormalMap_ST.zw;
 
-        float3 tn = UnpackNormalScale(tex2D(_NormalMap,input.uv),_NormalScale);
-        float3 detailTN = UnpackNormalScale(tex2D(_DetailNormalMap,input.uv),_DetailNormalScale);
+        float3 tn = UnpackNormalScale(tex2D(_NormalMap,normalUV),_NormalScale);
+        float3 detailTN = UnpackNormalScale(tex2D(_DetailNormalMap,detailUV),_DetailNormalScale);
         tn = float3(tn.xy + detailTN.xy,tn.z * detailTN.z);
 
         tn = BlendNormal(tn,detailTN);
