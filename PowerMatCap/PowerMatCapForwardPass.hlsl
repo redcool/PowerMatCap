@@ -30,8 +30,9 @@ v2f vert (appdata v)
     o.uv = TRANSFORM_TEX(v.uv, _MainTex);
     TANGENT_SPACE_COMBINE(v.vertex,v.normal,v.tangent,o/**/);
 
-    float3 worldView = GetWorldSpaceViewDir(p);
-    o.reflectDir = TransformObjectToWorldDir(worldView+_EnvMapOffset);
+    float3 viewDir = normalize(GetWorldSpaceViewDir(p));
+    float3 reflectDir = reflect(-viewDir,n);
+    o.reflectDir = (reflectDir+_EnvMapOffset);
     return o;
 }
 
@@ -49,8 +50,7 @@ float3 BlendNormal(float3 a,float3 b){
 }
 
 float3 CalcIbl(samplerCUBE cubemap,float rough,float3 reflectDir){
-    rough = rough *(1.7 - rough * 0.7);
-    float mip = rough * 6; 
+    float mip = (1.7-0.7*rough) * rough * 6; 
     float4 cubeCol = texCUBElod(cubemap,float4(reflectDir,mip));
     return DecodeHDREnvironment(cubeCol,unity_SpecCube0_HDR);
 }
@@ -79,15 +79,41 @@ half4 frag (v2f input) : SV_Target
     float matCapMask = maskTex.x;
     float iblMask = maskTex.y;
 
-    float a = _Roughness * _Roughness;
+    float smoothness = _Smoothness;
+    float rough = 1- smoothness;
+    float a = rough * rough;
+    float a2 = a*a;
+    float metallic = _Metallic;
+
+    float3 viewDir = normalize(_WorldSpaceCameraPos - worldPos);
+    float nv = saturate(dot(normal,viewDir));
+
     float3 iblCol = 0;
     if(_EnvMapOn)
         iblCol = CalcIbl(_EnvMap,a,input.reflectDir) * _EnvMapIntensity * iblMask;
+
+    half surfaceReduction = 1/(a2+1);
+    half fresnelTerm = pow(1-nv,4);
+    half grazingTerm = saturate(smoothness + metallic);
+
+    float3 sh = SampleSH(normal);
     // return matCap;
     // sample the texture
-    half4 col = tex2D(_MainTex, input.uv) * _Color;
+    half4 mainTex = tex2D(_MainTex, input.uv) * _Color;
+    half3 albedo = mainTex.xyz;
+    half alpha = mainTex.w;
+    half3 diffColor = albedo * (1-metallic);
+    half3 specColor = lerp(0.04,albedo,metallic);
 
-    col.xyz = (col.xyz + (matCap.xyz * matCapMask) + iblCol) * wnl;
+    half3 giDiff = sh * diffColor;
+    half3 giSpec = iblCol * lerp(specColor,grazingTerm,fresnelTerm) * surfaceReduction;
+    half3 specTerm = (matCap.xyz * matCapMask);
+    half radiance = wnl;
+
+    half4 col = 0;
+    col.xyz = (diffColor + specColor * specTerm) * radiance;
+    col.xyz += (giDiff + giSpec);
+    col.w = alpha;
     return col;
 }
 

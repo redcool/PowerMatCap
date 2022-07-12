@@ -14,6 +14,10 @@
 
         [GroupItem(Main)]_DetailNormalMap("_DetailNormalMap",2d)=""{}
         [GroupItem(Main)]_DetailNormalScale("_DetailNormalScale",range(0,10)) = 1
+
+        [Group(Metallic)]
+        [GroupItem(Main)]_Metallic("_Metallic",range(0,1)) = 0.5
+        [GroupItem(Main)]_Smoothness("_Smoothness",range(0,1)) = 0.5
         
         [Group(Env Light)]
         [GroupItem(Env Light)]_EnvMask("_EnvMask(R:MatcapMask,G:IBLMask)",2d) = "white"{}
@@ -27,7 +31,6 @@
         [GroupItem(Env Light)]_EnvMap("_EnvMap",cube) = ""{}
         [GroupItem(Env Light)]_EnvMapIntensity("_EnvMapIntensity",float) = 1
         [GroupItem(Env Light)]_EnvMapOffset("_EnvMapOffset",vector) = (0,0,0,0)
-        [GroupItem(Env Light)]_Roughness("_Roughness",range(0,1)) = 0.5
 
         [Group(Settings)]
         [GroupHeader(Settings,BlendMode)]

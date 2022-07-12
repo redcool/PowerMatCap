@@ -13,7 +13,7 @@
     combine tangent,binormal,normal,worldPos to putput.tSpace[0..2]
 */
 #define TANGENT_SPACE_COMBINE(vertex/*float3*/,normal/*float3*/,tangent/*float4*/,output/*{float4 tSpace[0..2]}*/)\
-    float3 p = mul(unity_ObjectToWorld,vertex);\
+    float3 p = mul(unity_ObjectToWorld,vertex).xyz;\
     float3 n = normalize(UnityObjectToWorldNormal(normal));\
     float3 t = normalize(UnityObjectToWorldDir(tangent.xyz));\
     float3 b = normalize(cross(n,t) * tangent.w);\

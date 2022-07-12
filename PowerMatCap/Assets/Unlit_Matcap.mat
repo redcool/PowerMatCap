@@ -35,7 +35,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
-        m_Texture: {fileID: 2800000, guid: 220e73c805d7dc14591895ecec98d3eb, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -51,7 +51,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: ad2c97b1db5426544ab1368428b9ea5c, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MatCap:
@@ -67,7 +67,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: 6a7bd2e00711aed4e9d9460a2487c1b9, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -86,19 +86,19 @@ Material:
     - _DetailNormalScale: 4.02
     - _DstBlend: 0
     - _DstMode: 0
-    - _EnvMapIntensity: 4.06
+    - _EnvMapIntensity: 1
     - _EnvMapOn: 1
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 1
-    - _MatCapScale: 0.34
-    - _Metallic: 0
+    - _MatCapScale: 0
+    - _Metallic: 1
     - _Mode: 0
-    - _NormalMapOn: 1
+    - _NormalMapOn: 0
     - _NormalScale: 6.08
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Roughness: 0.447
+    - _Smoothness: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -108,5 +108,5 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _EnvMapOffset: {r: 2.15, g: 0, b: 0, a: 0}
+    - _EnvMapOffset: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

@@ -24,7 +24,8 @@ float _MatCapScale;
 float _EnvMapOn;
 float _EnvMapIntensity;
 float3 _EnvMapOffset;
-float _Roughness;
+float _Smoothness;
+float _Metallic;
 CBUFFER_END
 
 #endif //POWER_MATCAP_INPUT_CGINC
