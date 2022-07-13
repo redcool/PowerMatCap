@@ -16,8 +16,10 @@
         [GroupItem(Main)]_DetailNormalScale("_DetailNormalScale",range(0,10)) = 1
 
         [Group(Surface)]
+        [GroupItem(Surface)]_PbrMask("_PbrMask(R:Metallic,G:Smoothness,B:Occlusion)",2d)="white"{}
         [GroupItem(Surface)]_Metallic("_Metallic",range(0,1)) = 0.5
         [GroupItem(Surface)]_Smoothness("_Smoothness",range(0,1)) = 0.5
+        [GroupItem(Surface)]_Occlusion("_Occlusion",range(0,1)) = 0
         
         [Group(Env Light)]
         [GroupItem(Env Light)][NoScaleOffset]_EnvMask("_EnvMask(R:MatcapMask,G:IBLMask)",2d) = "white"{}
@@ -29,9 +31,9 @@
         [GroupHeader(Env Light,IBL)]
         [GroupToggle(Env Light)]_EnvMapOn("_EnvMapOn",float) = 0
         [GroupItem(Env Light)][NoScaleOffset]_EnvMap("_EnvMap",cube) = ""{}
-        [GroupItem(Env Light)]_EnvMapTiling("_EnvMapTiling",range(0,5)) = 1
-        [GroupItem(Env Light)]_EnvMapIntensity("_EnvMapIntensity",range(0,10)) = 1
+        [GroupItem(Env Light)]_EnvMapIntensity("_EnvMapIntensity",range(0,1)) = 0.5
         [GroupItem(Env Light)]_EnvMapOffset("_EnvMapOffset",vector) = (0,0,0,0)
+        // [GroupItem(Env Light)]_EnvMapTiling("_EnvMapTiling",range(0,5)) = 1
 
         [Group(Settings)]
         [GroupHeader(Settings,BlendMode)]

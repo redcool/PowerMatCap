@@ -79,18 +79,26 @@ half4 frag (v2f input) : SV_Target
     float matCapMask = maskTex.x;
     float iblMask = maskTex.y;
 
-    float smoothness = _Smoothness;
+    float4 pbrMask = tex2D(_PbrMask,input.uv);
+
+    float metallic = _Metallic * pbrMask[0];
+    float smoothness = _Smoothness * pbrMask[1];
     float rough = 1- smoothness;
     float a = rough * rough;
-    float a2 = a*a;
-    float metallic = _Metallic;
+    float a2 = max(1e-8,a*a);
+    float occlusion = lerp(1,pbrMask[2],_Occlusion);
 
+    float3 lightDir = _MainLightPosition;
     float3 viewDir = normalize(_WorldSpaceCameraPos - worldPos);
+
+    float3 h = normalize(lightDir + viewDir);
     float nv = saturate(dot(normal,viewDir));
+    float nh = saturate(dot(normal,h));
+    float lh = saturate(dot(lightDir,h));
 
     float3 iblCol = 0;
     if(_EnvMapOn)
-        iblCol = CalcIbl(_EnvMap,a,frac(input.reflectDir * _EnvMapTiling)) * _EnvMapIntensity * iblMask;
+        iblCol = CalcIbl(_EnvMap,a,frac(input.reflectDir)) * _EnvMapIntensity;
 
     half surfaceReduction = 1/(a2+1);
     half fresnelTerm = pow(1-nv,4);
@@ -107,12 +115,15 @@ half4 frag (v2f input) : SV_Target
 
     half3 giDiff = sh * diffColor;
     half3 giSpec = iblCol * lerp(specColor,grazingTerm,fresnelTerm) * surfaceReduction;
-    half3 specTerm = (matCap.xyz * matCapMask);
     half radiance = wnl;
 
+    half d = nh*nh *(a2-1)+1;
+    half3 specTerm = a2/(d*d * max(0.0001,lh*lh) * (4*a+2));
+    specTerm += matCap.xyz;
+
     half4 col = 0;
-    col.xyz = (diffColor + specColor * specTerm) * radiance;
-    col.xyz += (giDiff + giSpec);
+    col.xyz = (diffColor + specColor * specTerm) * radiance  * _MainLightColor;
+    col.xyz += (giDiff + giSpec) * occlusion;
     col.w = alpha;
     return col;
 }

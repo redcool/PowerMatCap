@@ -7,6 +7,7 @@ sampler2D _DetailNormalMap;
 sampler2D _MatCap;
 sampler2D _EnvMask;
 samplerCUBE _EnvMap;
+sampler2D _PbrMask;
 
 CBUFFER_START(UnityPerMaterial)
 float4 _MainTex_ST;
@@ -23,11 +24,12 @@ float _MatCapScale;
 float4 _MatCap_ST;
 
 float _EnvMapOn;
-float _EnvMapTiling;
+// float _EnvMapTiling;
 float _EnvMapIntensity;
 float3 _EnvMapOffset;
 float _Smoothness;
 float _Metallic;
+float _Occlusion;
 CBUFFER_END
 
 #endif //POWER_MATCAP_INPUT_CGINC
