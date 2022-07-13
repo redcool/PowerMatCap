@@ -15,21 +15,22 @@
         [GroupItem(Main)]_DetailNormalMap("_DetailNormalMap",2d)=""{}
         [GroupItem(Main)]_DetailNormalScale("_DetailNormalScale",range(0,10)) = 1
 
-        [Group(Metallic)]
-        [GroupItem(Main)]_Metallic("_Metallic",range(0,1)) = 0.5
-        [GroupItem(Main)]_Smoothness("_Smoothness",range(0,1)) = 0.5
+        [Group(Surface)]
+        [GroupItem(Surface)]_Metallic("_Metallic",range(0,1)) = 0.5
+        [GroupItem(Surface)]_Smoothness("_Smoothness",range(0,1)) = 0.5
         
         [Group(Env Light)]
-        [GroupItem(Env Light)]_EnvMask("_EnvMask(R:MatcapMask,G:IBLMask)",2d) = "white"{}
+        [GroupItem(Env Light)][NoScaleOffset]_EnvMask("_EnvMask(R:MatcapMask,G:IBLMask)",2d) = "white"{}
 
         [GroupHeader(Env Light,Matcap)]
         [GroupItem(Env Light)]_MatCap("_MatCap",2d)=""{}
-        [GroupItem(Env Light)]_MatCapScale("_MatCapScale",float) = 1
+        [GroupItem(Env Light)]_MatCapScale("_MatCapScale",range(0,10)) = 1
 
         [GroupHeader(Env Light,IBL)]
         [GroupToggle(Env Light)]_EnvMapOn("_EnvMapOn",float) = 0
-        [GroupItem(Env Light)]_EnvMap("_EnvMap",cube) = ""{}
-        [GroupItem(Env Light)]_EnvMapIntensity("_EnvMapIntensity",float) = 1
+        [GroupItem(Env Light)][NoScaleOffset]_EnvMap("_EnvMap",cube) = ""{}
+        [GroupItem(Env Light)]_EnvMapTiling("_EnvMapTiling",range(0,5)) = 1
+        [GroupItem(Env Light)]_EnvMapIntensity("_EnvMapIntensity",range(0,10)) = 1
         [GroupItem(Env Light)]_EnvMapOffset("_EnvMapOffset",vector) = (0,0,0,0)
 
         [Group(Settings)]

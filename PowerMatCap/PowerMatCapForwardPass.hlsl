@@ -40,7 +40,7 @@ float4 CalcMatCap(float3 normal){
     float3 normalView = mul(UNITY_MATRIX_V,normal);
     normalView = normalView*0.5+0.5;
 
-    float2 matUV = (normalView.xy);
+    float2 matUV = (normalView.xy) * _MatCap_ST.xy + _MatCap_ST.zw;
     float4 matCap = tex2D(_MatCap,matUV);
     return matCap;
 }
@@ -90,7 +90,7 @@ half4 frag (v2f input) : SV_Target
 
     float3 iblCol = 0;
     if(_EnvMapOn)
-        iblCol = CalcIbl(_EnvMap,a,input.reflectDir) * _EnvMapIntensity * iblMask;
+        iblCol = CalcIbl(_EnvMap,a,frac(input.reflectDir * _EnvMapTiling)) * _EnvMapIntensity * iblMask;
 
     half surfaceReduction = 1/(a2+1);
     half fresnelTerm = pow(1-nv,4);
