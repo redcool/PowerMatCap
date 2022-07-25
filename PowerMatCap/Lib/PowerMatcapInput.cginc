@@ -27,9 +27,13 @@ float _EnvMapOn;
 // float _EnvMapTiling;
 float _EnvMapIntensity;
 float3 _EnvMapOffset;
+float4 _EnvMap_HDR;
+
 float _Smoothness;
 float _Metallic;
 float _Occlusion;
+
+half _AlphaPremultiply;
 CBUFFER_END
 
 #endif //POWER_MATCAP_INPUT_CGINC

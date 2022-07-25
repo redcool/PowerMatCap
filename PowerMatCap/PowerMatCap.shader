@@ -39,10 +39,13 @@
         [GroupHeader(Settings,BlendMode)]
         [GroupEnum(Settings,UnityEngine.Rendering.BlendMode)]_SrcMode("_SrcMode",int) = 1
         [GroupEnum(Settings,UnityEngine.Rendering.BlendMode)]_DstMode("_DstMode",int) = 0
+
+        [GroupHeader(Settings,Alpha)]
+        [GroupToggle(Settings)]_AlphaPremultiply("_AlphaPremultiply",int) = 0
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "LightMode"="UniversalForward" }
         LOD 100
 
         Pass
@@ -53,7 +56,7 @@
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "PowerMatCapForwardPass.hlsl"
+            #include "Lib/PowerMatCapForwardPass.hlsl"
 
             ENDHLSL
         }

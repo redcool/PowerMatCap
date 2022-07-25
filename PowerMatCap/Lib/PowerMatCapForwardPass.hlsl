@@ -49,10 +49,10 @@ float3 BlendNormal(float3 a,float3 b){
     return normalize(float3(a.xy*b.xy,a.z+b.z));
 }
 
-float3 CalcIbl(samplerCUBE cubemap,float rough,float3 reflectDir){
+float3 CalcIbl(samplerCUBE cubemap,half4 cubemapHDR,float rough,float3 reflectDir){
     float mip = (1.7-0.7*rough) * rough * 6; 
     float4 cubeCol = texCUBElod(cubemap,float4(reflectDir,mip));
-    return DecodeHDREnvironment(cubeCol,unity_SpecCube0_HDR);
+    return DecodeHDREnvironment(cubeCol,cubemapHDR);
 }
 
 half4 frag (v2f input) : SV_Target
@@ -65,13 +65,11 @@ half4 frag (v2f input) : SV_Target
 
         float3 tn = UnpackNormalScale(tex2D(_NormalMap,normalUV),_NormalScale);
         float3 detailTN = UnpackNormalScale(tex2D(_DetailNormalMap,detailUV),_DetailNormalScale);
-        tn = float3(tn.xy + detailTN.xy,tn.z * detailTN.z);
-
         tn = BlendNormal(tn,detailTN);
         normal = TangentToWorld(input.tSpace0,input.tSpace1,input.tSpace2,tn);
     }
     
-    float wnl = dot(_WorldSpaceLightPos0.xyz,normal) * 0.5+0.5;;
+    float wnl = dot(_WorldSpaceLightPos0.xyz,normal);// * 0.5+0.5;;
     float4 matCap = CalcMatCap(normal) * _MatCapScale;
 
     // mask
@@ -84,8 +82,8 @@ half4 frag (v2f input) : SV_Target
     float metallic = _Metallic * pbrMask[0];
     float smoothness = _Smoothness * pbrMask[1];
     float rough = 1- smoothness;
-    float a = rough * rough;
-    float a2 = max(1e-8,a*a);
+    float a = max(rough * rough,HALF_MIN_SQRT);
+    float a2 = max(a*a,HALF_MIN);
     float occlusion = lerp(1,pbrMask[2],_Occlusion);
 
     float3 lightDir = _MainLightPosition;
@@ -96,30 +94,44 @@ half4 frag (v2f input) : SV_Target
     float nh = saturate(dot(normal,h));
     float lh = saturate(dot(lightDir,h));
 
-    float3 iblCol = 0;
-    if(_EnvMapOn)
-        iblCol = CalcIbl(_EnvMap,a,frac(input.reflectDir)) * _EnvMapIntensity;
-
-    half surfaceReduction = 1/(a2+1);
-    half fresnelTerm = pow(1-nv,4);
-    half grazingTerm = saturate(smoothness + metallic);
-
-    float3 sh = SampleSH(normal);
-    // return matCap;
     // sample the texture
     half4 mainTex = tex2D(_MainTex, input.uv) * _Color;
     half3 albedo = mainTex.xyz;
     half alpha = mainTex.w;
+
+    //ApplyAlphaPremultiply(_AlphaPremultiply,metallic,albedo,alpha);
+    if(_AlphaPremultiply){
+        albedo *= alpha;
+        alpha = lerp(alpha+0.04,1,metallic);
+    }
+
     half3 diffColor = albedo * (1-metallic);
     half3 specColor = lerp(0.04,albedo,metallic);
 
+    // gi spec
+    float3 giSpec = 0;
+    if(_EnvMapOn){
+        half3 iblCol = CalcIbl(_EnvMap,_EnvMap_HDR,rough,normalize(input.reflectDir)) * _EnvMapIntensity;
+        half surfaceReduction = 1/(a2+1);
+        half fresnelTerm = pow(1-nv,4);
+        half grazingTerm = saturate(smoothness + metallic);
+        giSpec = iblCol * lerp(specColor,grazingTerm,fresnelTerm) * surfaceReduction;
+    }
+
+    // gi diff
+    float3 sh = SampleSH(normal);
     half3 giDiff = sh * diffColor;
-    half3 giSpec = iblCol * lerp(specColor,grazingTerm,fresnelTerm) * surfaceReduction;
+
+    // direct lighting
     half radiance = wnl;
 
-    half d = nh*nh *(a2-1)+1;
+    half d = nh*nh *(a2-1)+1;    
     half3 specTerm = a2/(d*d * max(0.0001,lh*lh) * (4*a+2));
     specTerm += matCap.xyz;
+
+    #if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
+        specTerm = clamp(specTerm,0,100);
+    #endif
 
     half4 col = 0;
     col.xyz = (diffColor + specColor * specTerm) * radiance  * _MainLightColor;
