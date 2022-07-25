@@ -66,7 +66,7 @@ half4 frag (v2f input) : SV_Target
         float3 tn = UnpackNormalScale(tex2D(_NormalMap,normalUV),_NormalScale);
         float3 detailTN = UnpackNormalScale(tex2D(_DetailNormalMap,detailUV),_DetailNormalScale);
         tn = BlendNormal(tn,detailTN);
-        normal = TangentToWorld(input.tSpace0.xyz,input.tSpace1.xyz,input.tSpace2.xyz,tn);
+        normal = TangentToWorld(input.tSpace0,input.tSpace1,input.tSpace2,tn);
     }
     
     float wnl = dot(_WorldSpaceLightPos0.xyz,normal);// * 0.5+0.5;;

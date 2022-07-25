@@ -34,4 +34,8 @@
 float3 TangentToWorld(float3 tSpace0,float3 tSpace1,float3 tSpace2,float3 tn){
     return normalize(float3(dot(tSpace0,tn),dot(tSpace1,tn),dot(tSpace2,tn)));
 }
+
+float3 TangentToWorld(float4 tSpace0,float4 tSpace1,float4 tSpace2,float3 tn){
+    return normalize(float3(dot(tSpace0.xyz,tn),dot(tSpace1.xyz,tn),dot(tSpace2.xyz,tn)));
+}
 #endif //TANGENT_LIB_CGINC
