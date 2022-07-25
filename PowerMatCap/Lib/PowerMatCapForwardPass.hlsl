@@ -37,7 +37,7 @@ v2f vert (appdata v)
 }
 
 float4 CalcMatCap(float3 normal){
-    float3 normalView = mul(UNITY_MATRIX_V,normal);
+    float3 normalView = mul(UNITY_MATRIX_V,float4(normal,0)).xyz;
     normalView = normalView*0.5+0.5;
 
     float2 matUV = (normalView.xy) * _MatCap_ST.xy + _MatCap_ST.zw;
@@ -66,7 +66,7 @@ half4 frag (v2f input) : SV_Target
         float3 tn = UnpackNormalScale(tex2D(_NormalMap,normalUV),_NormalScale);
         float3 detailTN = UnpackNormalScale(tex2D(_DetailNormalMap,detailUV),_DetailNormalScale);
         tn = BlendNormal(tn,detailTN);
-        normal = TangentToWorld(input.tSpace0,input.tSpace1,input.tSpace2,tn);
+        normal = TangentToWorld(input.tSpace0.xyz,input.tSpace1.xyz,input.tSpace2.xyz,tn);
     }
     
     float wnl = dot(_WorldSpaceLightPos0.xyz,normal);// * 0.5+0.5;;
@@ -86,7 +86,7 @@ half4 frag (v2f input) : SV_Target
     float a2 = max(a*a,HALF_MIN);
     float occlusion = lerp(1,pbrMask[2],_Occlusion);
 
-    float3 lightDir = _MainLightPosition;
+    float3 lightDir = _MainLightPosition.xyz;
     float3 viewDir = normalize(_WorldSpaceCameraPos - worldPos);
 
     float3 h = normalize(lightDir + viewDir);
@@ -134,7 +134,7 @@ half4 frag (v2f input) : SV_Target
     #endif
 
     half4 col = 0;
-    col.xyz = (diffColor + specColor * specTerm) * radiance  * _MainLightColor;
+    col.xyz = (diffColor + specColor * specTerm) * radiance  * _MainLightColor.xyz;
     col.xyz += (giDiff + giSpec) * occlusion;
     col.w = alpha;
     return col;
