@@ -46,7 +46,7 @@ float4 CalcMatCap(float3 normal){
 }
 
 float3 BlendNormal(float3 a,float3 b){
-    return normalize(float3(a.xy*b.xy,a.z+b.z));
+    return normalize(float3(a.xy*b.z+b.xy*a.z,a.z*b.z));
 }
 
 float3 CalcIbl(samplerCUBE cubemap,half4 cubemapHDR,float rough,float3 reflectDir){

@@ -1,4 +1,4 @@
-﻿Shader "PowerXXX/PowerMatcap"
+﻿Shader "Character/PowerMatcap"
 {
     Properties
     {
