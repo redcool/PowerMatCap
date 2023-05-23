@@ -23,8 +23,6 @@ float4 _DetailNormalMap_ST;
 float _MatCapScale;
 float4 _MatCap_ST;
 
-float _EnvMapOn;
-// float _EnvMapTiling;
 float _EnvMapIntensity;
 float3 _EnvMapOffset;
 float4 _EnvMap_HDR;

@@ -2,6 +2,7 @@
 {
     Properties
     {
+        [GroupHeader(v0.0.3)]
         [Group(Main)]
         [GroupHeader(Main,Main)]
         [GroupItem(Main)]_MainTex ("_MainTex", 2D) = "white" {}
@@ -29,11 +30,9 @@
         [GroupItem(Env Light)]_MatCapScale("_MatCapScale",range(0,10)) = 1
 
         [GroupHeader(Env Light,IBL)]
-        [GroupToggle(Env Light)]_EnvMapOn("_EnvMapOn",float) = 0
         [GroupItem(Env Light)][NoScaleOffset]_EnvMap("_EnvMap",cube) = ""{}
         [GroupItem(Env Light)]_EnvMapIntensity("_EnvMapIntensity",range(0,1)) = 0.5
         [GroupItem(Env Light)]_EnvMapOffset("_EnvMapOffset",vector) = (0,0,0,0)
-        // [GroupItem(Env Light)]_EnvMapTiling("_EnvMapTiling",range(0,5)) = 1
 
         [GroupHeader(Env Light,Fresnel)]
         [GroupVectorSlider(Env Light,FresnelWidthMin FresnelWidthMax,0_1 0_1)]_FresnelWidth("_FresnelWidth",vector) = (0,1,0,0)

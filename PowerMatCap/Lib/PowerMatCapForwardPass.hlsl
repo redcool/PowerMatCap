@@ -110,21 +110,18 @@ half4 frag (v2f input) : SV_Target
     half3 specColor = lerp(0.04,albedo,metallic);
 
     // gi spec
-    float3 giSpec = 0;
-    if(_EnvMapOn){
-        half3 iblCol = CalcIbl(_EnvMap,_EnvMap_HDR,rough,normalize(input.reflectDir)) * _EnvMapIntensity;
-        half surfaceReduction = 1/(a2+1);
-        half fresnelTerm = pow(1-nv,4);
-        fresnelTerm = smoothstep(_FresnelWidth.x,_FresnelWidth.y,fresnelTerm);
+    half surfaceReduction = 1/(a2+1);
+    half fresnelTerm = pow(1-nv,4);
+    fresnelTerm = smoothstep(_FresnelWidth.x,_FresnelWidth.y,fresnelTerm);
 
-        half3 grazingTerm = saturate(smoothness + metallic);
-        grazingTerm *= _FresnelColor;
+    half3 grazingTerm = saturate(smoothness + metallic);
+    grazingTerm *= _FresnelColor;
 
-        giSpec = iblCol * lerp(specColor,grazingTerm,fresnelTerm) * surfaceReduction;
-    }
+    half3 iblCol = CalcIbl(_EnvMap,_EnvMap_HDR,rough,normalize(input.reflectDir)) * _EnvMapIntensity;
+    half3 giSpec = iblCol * lerp(specColor,grazingTerm,fresnelTerm) * surfaceReduction;
 
     // gi diff
-    float3 sh = SampleSH(normal);
+    half3 sh = SampleSH(normal);
     half3 giDiff = sh * diffColor;
 
     // direct lighting
