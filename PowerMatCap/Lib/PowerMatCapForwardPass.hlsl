@@ -1,10 +1,11 @@
 #if !defined(POWER_MATCAP_FORWARD_PASS_HLSL)
 #define POWER_MATCAP_FORWARD_PASS_HLSL
-
-
-#include "Lib/UnityLib.hlsl"
-#include "Lib/TangentLib.cginc"
-#include "Lib/PowerMatcapInput.cginc"
+// #include "Lib/UnityLib.hlsl"
+// #include "Lib/TangentLib.hlsl"
+#include "../../PowerShaderLib/Lib/UnityLib.hlsl"
+#include "../../PowerShaderLib/Lib/TangentLib.hlsl"
+#include "../../PowerShaderLib/URPLib/URP_GI.hlsl"
+#include "Lib/PowerMatcapInput.hlsl"
 
 struct appdata
 {
@@ -66,10 +67,10 @@ half4 frag (v2f input) : SV_Target
         float3 tn = UnpackNormalScale(tex2D(_NormalMap,normalUV),_NormalScale);
         float3 detailTN = UnpackNormalScale(tex2D(_DetailNormalMap,detailUV),_DetailNormalScale);
         tn = BlendNormal(tn,detailTN);
-        normal = TangentToWorld(input.tSpace0,input.tSpace1,input.tSpace2,tn);
+        normal = TangentToWorld(tn,input.tSpace0,input.tSpace1,input.tSpace2);
     }
     
-    float wnl = dot(_WorldSpaceLightPos0.xyz,normal);// * 0.5+0.5;;
+    float wnl = dot(_MainLightPosition.xyz,normal);// * 0.5+0.5;;
     float4 matCap = CalcMatCap(normal) * _MatCapScale;
 
     // mask
@@ -114,7 +115,11 @@ half4 frag (v2f input) : SV_Target
         half3 iblCol = CalcIbl(_EnvMap,_EnvMap_HDR,rough,normalize(input.reflectDir)) * _EnvMapIntensity;
         half surfaceReduction = 1/(a2+1);
         half fresnelTerm = pow(1-nv,4);
-        half grazingTerm = saturate(smoothness + metallic);
+        fresnelTerm = smoothstep(_FresnelWidth.x,_FresnelWidth.y,fresnelTerm);
+
+        half3 grazingTerm = saturate(smoothness + metallic);
+        grazingTerm *= _FresnelColor;
+
         giSpec = iblCol * lerp(specColor,grazingTerm,fresnelTerm) * surfaceReduction;
     }
 
@@ -125,7 +130,7 @@ half4 frag (v2f input) : SV_Target
     // direct lighting
     half radiance = wnl;
 
-    half d = nh*nh *(a2-1)+1;    
+    half d = nh*nh *(a2-1)+1;
     half3 specTerm = a2/(d*d * max(0.0001,lh*lh) * (4*a+2));
     specTerm += matCap.xyz;
 

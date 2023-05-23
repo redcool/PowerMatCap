@@ -5,7 +5,7 @@
         [Group(Main)]
         [GroupHeader(Main,Main)]
         [GroupItem(Main)]_MainTex ("_MainTex", 2D) = "white" {}
-        [GroupItem(Main)]_Color("_Color",color)=(1,1,1,1)
+        [GroupItem(Main)][hdr]_Color("_Color",color)=(1,1,1,1)
 
         [GroupHeader(Main,Normal)]
         [GroupToggle(Main)]_NormalMapOn("_NormalMapOn",float) = 0
@@ -34,6 +34,10 @@
         [GroupItem(Env Light)]_EnvMapIntensity("_EnvMapIntensity",range(0,1)) = 0.5
         [GroupItem(Env Light)]_EnvMapOffset("_EnvMapOffset",vector) = (0,0,0,0)
         // [GroupItem(Env Light)]_EnvMapTiling("_EnvMapTiling",range(0,5)) = 1
+
+        [GroupHeader(Env Light,Fresnel)]
+        [GroupVectorSlider(Env Light,FresnelWidthMin FresnelWidthMax,0_1 0_1)]_FresnelWidth("_FresnelWidth",vector) = (0,1,0,0)
+        [GroupItem(Env Light)][hdr]_FresnelColor("_FresnelColor",color)  =(1,1,1,1)
 
         [Group(Settings)]
         [GroupHeader(Settings,BlendMode)]

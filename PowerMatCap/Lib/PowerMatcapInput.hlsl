@@ -1,5 +1,5 @@
-#if !defined(POWER_MATCAP_INPUT_CGINC)
-#define POWER_MATCAP_INPUT_CGINC
+#if !defined(POWER_MATCAP_INPUT_HLSL)
+#define POWER_MATCAP_INPUT_HLSL
 
 sampler2D _MainTex;
 sampler2D _NormalMap;
@@ -28,6 +28,8 @@ float _EnvMapOn;
 float _EnvMapIntensity;
 float3 _EnvMapOffset;
 float4 _EnvMap_HDR;
+half4 _FresnelColor;
+float2 _FresnelWidth;
 
 float _Smoothness;
 float _Metallic;
@@ -36,4 +38,4 @@ float _Occlusion;
 half _AlphaPremultiply;
 CBUFFER_END
 
-#endif //POWER_MATCAP_INPUT_CGINC
+#endif //POWER_MATCAP_INPUT_HLSL

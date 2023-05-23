@@ -114,7 +114,7 @@ Material:
     - _Metallic: 0.27
     - _MetallicChannel: 0
     - _NormalMapOn: 1
-    - _NormalScale: 1
+    - _NormalScale: 2.11
     - _Occlusion: 0.974
     - _OcclusionChannel: 2
     - _ParallaxHeight: 0.01
