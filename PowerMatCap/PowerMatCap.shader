@@ -38,17 +38,19 @@
         [GroupVectorSlider(Env Light,FresnelWidthMin FresnelWidthMax,0_1 0_1)]_FresnelWidth("_FresnelWidth",vector) = (0,1,0,0)
         [GroupItem(Env Light)][hdr]_FresnelColor("_FresnelColor",color)  =(1,1,1,1)
 
-        [Group(Settings)]
-        [GroupHeader(Settings,BlendMode)]
-        [GroupEnum(Settings,UnityEngine.Rendering.BlendMode)]_SrcMode("_SrcMode",int) = 1
-        [GroupEnum(Settings,UnityEngine.Rendering.BlendMode)]_DstMode("_DstMode",int) = 0
+        [Group(Alpha)]
+        [GroupHeader(Alpha,BlendMode)]
+        [GroupPresetBlendMode(Alpha,,_SrcMode,_DstMode)]_PresetBlendMode("_PresetBlendMode",int)=0
+        // [GroupEnum(Alpha,UnityEngine.Rendering.BlendMode)]
+        [HideInInspector]_SrcMode("_SrcMode",int) = 1
+        [HideInInspector]_DstMode("_DstMode",int) = 0
 
-        [GroupHeader(Settings,Alpha)]
-        [GroupToggle(Settings)]_AlphaPremultiply("_AlphaPremultiply",int) = 0
+        [GroupHeader(Alpha,Premultiply)]
+        [GroupToggle(Alpha)]_AlphaPremultiply("_AlphaPremultiply",int) = 0
 
-        [GroupHeader(Settings,AlphaTest)]
-        [GroupToggle(Settings,ALPHA_TEST)]_AlphaTestOn("_AlphaTestOn",int) = 0
-        [GroupSlider(Settings)]_Cutoff("_Cutoff",range(0,1)) = 0.5
+        [GroupHeader(Alpha,AlphaTest)]
+        [GroupToggle(Alpha,ALPHA_TEST)]_AlphaTestOn("_AlphaTestOn",int) = 0
+        [GroupSlider(Alpha)]_Cutoff("_Cutoff",range(0,1)) = 0.5
     }
     SubShader
     {
