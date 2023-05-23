@@ -2,6 +2,7 @@
 {
     Properties
     {
+        [GroupHeader(v0.0.3)]
         [Group(Main)]
         [GroupHeader(Main,Main)]
         [GroupItem(Main)]_MainTex ("_MainTex", 2D) = "white" {}
