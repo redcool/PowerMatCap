@@ -1,11 +1,9 @@
 #if !defined(POWER_MATCAP_FORWARD_PASS_HLSL)
 #define POWER_MATCAP_FORWARD_PASS_HLSL
-// #include "Lib/UnityLib.hlsl"
-// #include "Lib/TangentLib.hlsl"
 #include "../../PowerShaderLib/Lib/UnityLib.hlsl"
 #include "../../PowerShaderLib/Lib/TangentLib.hlsl"
 #include "../../PowerShaderLib/URPLib/URP_GI.hlsl"
-#include "Lib/PowerMatcapInput.hlsl"
+#include "Lib/PowerMatCapInput.hlsl"
 
 struct appdata
 {
@@ -42,7 +40,7 @@ float4 CalcMatCap(float3 normal){
     normalView = normalView*0.5+0.5;
 
     float2 matUV = (normalView.xy) * _MatCap_ST.xy + _MatCap_ST.zw;
-    float4 matCap = tex2D(_MatCap,matUV);
+    float4 matCap = SAMPLE_TEXTURE2D(_MatCap,sampler_MatCap,matUV);
     return matCap;
 }
 
@@ -50,9 +48,9 @@ float3 BlendNormal(float3 a,float3 b){
     return normalize(float3(a.xy*b.z+b.xy*a.z,a.z*b.z));
 }
 
-float3 CalcIbl(samplerCUBE cubemap,half4 cubemapHDR,float rough,float3 reflectDir){
+float3 CalcIbl(TEXTURECUBE_PARAM(cubemap,sampler_cubemap),half4 cubemapHDR,float rough,float3 reflectDir){
     float mip = (1.7-0.7*rough) * rough * 6; 
-    float4 cubeCol = texCUBElod(cubemap,float4(reflectDir,mip));
+    float4 cubeCol = SAMPLE_TEXTURECUBE_LOD(cubemap,sampler_cubemap,reflectDir,mip);
     return DecodeHDREnvironment(cubeCol,cubemapHDR);
 }
 
@@ -60,12 +58,13 @@ half4 frag (v2f input) : SV_Target
 {
     TANGENT_SPACE_SPLIT(input);
     
-    if(_NormalMapOn){
+    branch_if(_NormalMapOn)
+    {
         float2 normalUV = input.uv * _NormalMap_ST.xy + _NormalMap_ST.zw;
         float2 detailUV = input.uv *  _DetailNormalMap_ST.xy + _DetailNormalMap_ST.zw;
 
-        float3 tn = UnpackNormalScale(tex2D(_NormalMap,normalUV),_NormalScale);
-        float3 detailTN = UnpackNormalScale(tex2D(_DetailNormalMap,detailUV),_DetailNormalScale);
+        float3 tn = UnpackNormalScale(SAMPLE_TEXTURE2D(_NormalMap,sampler_NormalMap,normalUV),_NormalScale);
+        float3 detailTN = UnpackNormalScale(SAMPLE_TEXTURE2D(_DetailNormalMap,sampler_DetailNormalMap,detailUV),_DetailNormalScale);
         tn = BlendNormal(tn,detailTN);
         normal = TangentToWorld(tn,input.tSpace0,input.tSpace1,input.tSpace2);
     }
@@ -74,11 +73,11 @@ half4 frag (v2f input) : SV_Target
     float4 matCap = CalcMatCap(normal) * _MatCapScale;
 
     // mask
-    float4 maskTex = tex2D(_EnvMask,input.uv);
+    float4 maskTex = SAMPLE_TEXTURE2D(_EnvMask,sampler_EnvMask,input.uv);
     float matCapMask = maskTex.x;
     float iblMask = maskTex.y;
 
-    float4 pbrMask = tex2D(_PbrMask,input.uv);
+    float4 pbrMask = SAMPLE_TEXTURE2D(_PbrMask,sampler_PbrMask,input.uv);
 
     float metallic = _Metallic * pbrMask[0];
     float smoothness = _Smoothness * pbrMask[1];
@@ -96,12 +95,16 @@ half4 frag (v2f input) : SV_Target
     float lh = saturate(dot(lightDir,h));
 
     // sample the texture
-    half4 mainTex = tex2D(_MainTex, input.uv) * _Color;
+    half4 mainTex = SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,input.uv) * _Color;
     half3 albedo = mainTex.xyz;
     half alpha = mainTex.w;
 
-    //ApplyAlphaPremultiply(_AlphaPremultiply,metallic,albedo,alpha);
-    if(_AlphaPremultiply){
+    #if defined(ALPHA_TEST)
+        clip(alpha - _Cutoff);
+    #endif
+
+    branch_if(_AlphaPremultiply)
+    {
         albedo *= alpha;
         alpha = lerp(alpha+0.04,1,metallic);
     }
@@ -117,7 +120,7 @@ half4 frag (v2f input) : SV_Target
     half3 grazingTerm = saturate(smoothness + metallic);
     grazingTerm *= _FresnelColor;
 
-    half3 iblCol = CalcIbl(_EnvMap,_EnvMap_HDR,rough,normalize(input.reflectDir)) * _EnvMapIntensity;
+    half3 iblCol = CalcIbl(_EnvMap,sampler_EnvMap,_EnvMap_HDR,rough,normalize(input.reflectDir)) * _EnvMapIntensity;
     half3 giSpec = iblCol * lerp(specColor,grazingTerm,fresnelTerm) * surfaceReduction;
 
     // gi diff

@@ -1,13 +1,13 @@
 #if !defined(POWER_MATCAP_INPUT_HLSL)
 #define POWER_MATCAP_INPUT_HLSL
 
-sampler2D _MainTex;
-sampler2D _NormalMap;
-sampler2D _DetailNormalMap;
-sampler2D _MatCap;
-sampler2D _EnvMask;
-samplerCUBE _EnvMap;
-sampler2D _PbrMask;
+TEXTURE2D(_MainTex);SAMPLER(sampler_MainTex);
+TEXTURE2D(_NormalMap);SAMPLER(sampler_NormalMap);
+TEXTURE2D(_DetailNormalMap);SAMPLER(sampler_DetailNormalMap);
+TEXTURE2D(_MatCap);SAMPLER(sampler_MatCap);
+TEXTURE2D(_EnvMask);SAMPLER(sampler_EnvMask);
+TEXTURECUBE(_EnvMap);SAMPLER(sampler_EnvMap);
+TEXTURE2D(_PbrMask);SAMPLER(sampler_PbrMask);
 
 CBUFFER_START(UnityPerMaterial)
 float4 _MainTex_ST;
@@ -34,6 +34,7 @@ float _Metallic;
 float _Occlusion;
 
 half _AlphaPremultiply;
+half _Cutoff;
 CBUFFER_END
 
 #endif //POWER_MATCAP_INPUT_HLSL

@@ -45,24 +45,91 @@
 
         [GroupHeader(Settings,Alpha)]
         [GroupToggle(Settings)]_AlphaPremultiply("_AlphaPremultiply",int) = 0
+
+        [GroupHeader(Settings,AlphaTest)]
+        [GroupToggle(Settings,ALPHA_TEST)]_AlphaTestOn("_AlphaTestOn",int) = 0
+        [GroupSlider(Settings)]_Cutoff("_Cutoff",range(0,1)) = 0.5
     }
     SubShader
     {
-        Tags { "LightMode"="UniversalForward" }
         LOD 100
 
         Pass
         {
+            Tags { "LightMode"="UniversalForward" }
             Blend [_SrcMode][_DstMode]
             HLSLPROGRAM
             #pragma target 3.0
             #pragma vertex vert
             #pragma fragment frag
+            //--------------------------------------
+            // GPU Instancing
+            // #pragma multi_compile_instancing
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local_fragment _ ALPHA_TEST
 
             #include "Lib/PowerMatCapForwardPass.hlsl"
 
             ENDHLSL
         }
+        Pass
+        {
+            Tags { "LightMode"="DepthOnly" }
+            
+            HLSLPROGRAM
+            #pragma target 3.0
+            #pragma vertex vert
+            #pragma fragment frag
+            //--------------------------------------
+            // GPU Instancing
+            // #pragma multi_compile_instancing
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local_fragment  ALPHA_TEST
+
+            #include "../../PowerShaderLib/Lib/UnityLib.hlsl"
+            #include "Lib/PowerMatCapInput.hlsl"
+            #define _MainTexChannel 2
+            #include "../../PowerShaderLib/URPLib/ShadowCasterPass.hlsl"
+
+            ENDHLSL
+        }
+        Pass
+        {
+            Tags { "LightMode"="ShadowCaster" }
+            HLSLPROGRAM
+            #pragma target 3.0
+            #pragma vertex vert
+            #pragma fragment frag
+            //--------------------------------------
+            // GPU Instancing
+            // #pragma multi_compile_instancing
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local_fragment ALPHA_TEST
+
+            #include "../../PowerShaderLib/Lib/UnityLib.hlsl"
+            #include "Lib/PowerMatCapInput.hlsl"
+            #define SHADOW_PASS
+            #define _MainTexChannel 3
+            
+            #include "../../PowerShaderLib/URPLib/ShadowCasterPass.hlsl"
+
+            ENDHLSL
+        }        
     }
 }
 
