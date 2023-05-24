@@ -126,7 +126,7 @@ half4 frag (v2f input) : SV_Target
     // additional lights
     #if defined(_ADDITIONAL_LIGHTS_ON)
         float4 shadowMask = 1;
-        col.xyz = CalcAdditionalLights(worldPos,diffColor,specColor,normal,viewDir,a,a2,shadowMask);
+        col.xyz += CalcAdditionalLights(worldPos,diffColor,specColor,normal,viewDir,a,a2,shadowMask);
     #endif
     col.w = alpha;
     return col;
