@@ -21,6 +21,7 @@
         [GroupItem(Surface)]_Metallic("_Metallic",range(0,1)) = 0.5
         [GroupItem(Surface)]_Smoothness("_Smoothness",range(0,1)) = 0.5
         [GroupItem(Surface)]_Occlusion("_Occlusion",range(0,1)) = 0
+        [GroupToggle(Surface)]_IsSmoothnessReversed("_IsSmoothnessReversed",int) = 0
         
         [Group(Env Light)]
         [GroupItem(Env Light)][NoScaleOffset]_EnvMask("_EnvMask(R:MatcapMask,G:IBLMask)",2d) = "white"{}
@@ -51,6 +52,21 @@
         [GroupHeader(Alpha,AlphaTest)]
         [GroupToggle(Alpha,ALPHA_TEST)]_AlphaTestOn("_AlphaTestOn",int) = 0
         [GroupSlider(Alpha)]_Cutoff("_Cutoff",range(0,1)) = 0.5
+
+        [Group(Shadow)]
+        //[LineHeader(Shadows)]
+        [GroupToggle(Shadow,_RECEIVE_SHADOWS_OFF)]_ReceiveShadowOff("_ReceiveShadowOff",int) = 0
+        [GroupItem(Shadow)]_MainLightShadowSoftScale("_MainLightShadowSoftScale",range(0,1)) = 0.1
+
+        [GroupHeader(Shadow,custom bias)]
+        [GroupSlider(Shadow)]_CustomShadowNormalBias("_CustomShadowNormalBias",range(-1,1)) = 0
+        [GroupSlider(Shadow)]_CustomShadowDepthBias("_CustomShadowDepthBias",range(-1,1)) = 0
+
+        [Group(AdditionalLights)]
+        [GroupToggle(AdditionalLights,_ADDITIONAL_LIGHTS_ON)]_CalcAdditionalLights("_CalcAdditionalLights",int) = 0
+        // [GroupToggle(AdditionalLights,_ADDITIONAL_LIGHT_SHADOWS)]_ReceiveAdditionalLightShadow("_ReceiveAdditionalLightShadow",int) = 1
+        // [GroupToggle(AdditionalLights,_ADDITIONAL_LIGHT_SHADOWS_SOFT)]_AdditionalIghtSoftShadow("_AdditionalIghtSoftShadow",int) = 0
+
     }
     SubShader
     {
@@ -58,6 +74,7 @@
 
         Pass
         {
+            name "PowerMatCap"
             Tags { "LightMode"="UniversalForward" }
             Blend [_SrcMode][_DstMode]
             HLSLPROGRAM
@@ -68,12 +85,17 @@
             // GPU Instancing
             // #pragma multi_compile_instancing
 
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE //_MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile _ _SHADOWS_SOFT
+            #pragma shader_feature _ADDITIONAL_LIGHTS_ON
+            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
+
             #pragma vertex vert
             #pragma fragment frag
 
-            // -------------------------------------
             // Material Keywords
-            #pragma shader_feature_local_fragment _ ALPHA_TEST
+            #pragma shader_feature_local_fragment ALPHA_TEST
+            #pragma shader_feature _RECEIVE_SHADOWS_OFF
 
             #include "Lib/PowerMatCapForwardPass.hlsl"
 
@@ -100,7 +122,6 @@
 
             #include "../../PowerShaderLib/Lib/UnityLib.hlsl"
             #include "Lib/PowerMatCapInput.hlsl"
-            #define _MainTexChannel 2
             #include "../../PowerShaderLib/URPLib/ShadowCasterPass.hlsl"
 
             ENDHLSL
@@ -122,16 +143,18 @@
             // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local_fragment ALPHA_TEST
+            // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
             #include "../../PowerShaderLib/Lib/UnityLib.hlsl"
             #include "Lib/PowerMatCapInput.hlsl"
             #define SHADOW_PASS
-            #define _MainTexChannel 3
-            
+            #define _CustomShadowNormalBias _CustomShadowNormalBias
+            #define _CustomShadowDepthBias _CustomShadowDepthBias
             #include "../../PowerShaderLib/URPLib/ShadowCasterPass.hlsl"
 
             ENDHLSL
-        }        
+        }
     }
 }
 

@@ -29,12 +29,16 @@ float4 _EnvMap_HDR;
 half4 _FresnelColor;
 float2 _FresnelWidth;
 
-float _Smoothness;
-float _Metallic;
-float _Occlusion;
+half _Smoothness;
+half _Metallic;
+half _Occlusion;
+half _IsSmoothnessReversed;
 
 half _AlphaPremultiply;
 half _Cutoff;
+
+half _CustomShadowNormalBias;
+half _CustomShadowDepthBias;
 CBUFFER_END
 
 #endif //POWER_MATCAP_INPUT_HLSL
