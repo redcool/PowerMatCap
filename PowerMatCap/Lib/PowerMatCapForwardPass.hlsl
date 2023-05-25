@@ -72,7 +72,7 @@ half4 frag (v2f input) : SV_Target
         normal = (TangentToWorld(tn,input.tSpace0,input.tSpace1,input.tSpace2));
     }
     
-    float wnl = dot(_MainLightPosition.xyz,normal);// * 0.5+0.5;;
+    float nl = saturate(dot(_MainLightPosition.xyz,normal));// * 0.5+0.5;;
     float4 matCap = CalcMatCap(normal) * _MatCapScale;
 
     // mask
@@ -113,7 +113,7 @@ half4 frag (v2f input) : SV_Target
     half shadowAtten = CalcShadow(shadowCoord,worldPos,0.1);
 
     // return shadowAtten;
-    half3 radiance = wnl * _MainLightColor.xyz * shadowAtten;
+    half3 radiance = nl * _MainLightColor.xyz * shadowAtten;
     half3 specTerm = MinimalistCookTorrance(nh,lh,a,a2);
 
     specTerm += matCap.xyz;
