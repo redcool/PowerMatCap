@@ -23,6 +23,7 @@ struct v2f
 
     TANGENT_SPACE_DECLARE(2,3,4);
     float3 reflectDir:TEXCOORD5;
+    float3 viewDirTS:TEXCOORD6;
 };
 
 v2f vert (appdata v)
@@ -35,6 +36,7 @@ v2f vert (appdata v)
     float3 viewDir = normalize(GetWorldSpaceViewDir(p));
     float3 reflectDir = reflect(-viewDir,n);
     o.reflectDir = (reflectDir+_EnvMapOffset);
+    o.viewDirTS = WorldToTangent(viewDir,o.tSpace0,o.tSpace1,o.tSpace2);
     return o;
 }
 
@@ -111,8 +113,13 @@ half4 frag (v2f input) : SV_Target
     }else{
         giDiff = CalcGIDiff(normal,diffColor);
     }
-    
-    half3 giSpec = CalcGISpec(_EnvMap,sampler_EnvMap,_EnvMap_HDR,specColor,worldPos,normal,viewDir,0/*reflectDirOffset*/,_EnvMapIntensity,nv,rough,a2,smoothness,metallic,_FresnelWidth,_FresnelColor);
+
+    // float3 reflectDir =(CalcInteriorMapReflectDir(normalize(input.viewDirTS),input.uv));
+    // // return reflectDir.xyzx;
+    // float3 iblCol= CalcIBL(reflectDir,_EnvMap,sampler_EnvMap,rough,_EnvMap_HDR);
+    // return float4(iblCol,1);
+
+    half3 giSpec = CalcGISpec(_EnvMap,sampler_EnvMap,_EnvMap_HDR,specColor,worldPos,normal,viewDir,_EnvMapOffset,_EnvMapIntensity,nv,rough,a2,smoothness,metallic,_FresnelWidth,_FresnelColor);
 
     // direct lighting
     float4 shadowCoord = TransformWorldToShadowCoord(worldPos);
