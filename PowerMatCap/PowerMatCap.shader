@@ -53,6 +53,10 @@
         // [GroupToggle(AdditionalLights,_ADDITIONAL_LIGHT_SHADOWS)]_ReceiveAdditionalLightShadow("_ReceiveAdditionalLightShadow",int) = 1
         // [GroupToggle(AdditionalLights,_ADDITIONAL_LIGHT_SHADOWS_SOFT)]_AdditionalIghtSoftShadow("_AdditionalIghtSoftShadow",int) = 0
 
+        [Group(GI)]
+        [GroupToggle(GI)]_CustomGIDiff("_CustomGIDiff",int) = 0
+        [GroupItem(GI)]_GIDiffColor("_GIDiffColor",color) = (1,1,1,1)
+
         [Group(Alpha)]
         [GroupHeader(Alpha,BlendMode)]
         [GroupPresetBlendMode(Alpha,,_SrcMode,_DstMode)]_PresetBlendMode("_PresetBlendMode",int)=0
@@ -66,6 +70,9 @@
         [GroupHeader(Alpha,AlphaTest)]
         [GroupToggle(Alpha,ALPHA_TEST)]_AlphaTestOn("_AlphaTestOn",int) = 0
         [GroupSlider(Alpha)]_Cutoff("_Cutoff",range(0,1)) = 0.5
+
+        [GroupHeader(Alpha,Channel)]
+        [GroupEnum(Alpha,r g b a,0 1 2 3)]_AlphaChannel("_AlphaChannel",int) = 3
 
         [Group(Settings)]
         [GroupEnum(Settings,UnityEngine.Rendering.CullMode)]_CullMode("_CullMode",int) = 2

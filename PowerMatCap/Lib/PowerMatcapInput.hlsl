@@ -12,6 +12,7 @@ TEXTURE2D(_PbrMask);SAMPLER(sampler_PbrMask);
 CBUFFER_START(UnityPerMaterial)
 float4 _MainTex_ST;
 float4 _Color;
+half _AlphaChannel;
 
 float _NormalMapOn;
 float _NormalScale;
@@ -33,6 +34,9 @@ half _Smoothness;
 half _Metallic;
 half _Occlusion;
 half _IsSmoothnessReversed;
+
+half _CustomGIDiff;
+half4 _GIDiffColor;
 
 half _AlphaPremultiply;
 half _Cutoff;

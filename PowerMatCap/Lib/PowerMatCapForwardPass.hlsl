@@ -82,10 +82,10 @@ half4 frag (v2f input) : SV_Target
 
     float4 pbrMask = SAMPLE_TEXTURE2D(_PbrMask,sampler_PbrMask,input.uv);
     float metallic,smoothness,occlusion;
-    SplitPbrMaskTexture(pbrMask,int3(0,1,2),float3(_Metallic,_Smoothness,_Occlusion),metallic/**/,smoothness/**/,occlusion/**/,_IsSmoothnessReversed);
+    SplitPbrMaskTexture(metallic/**/,smoothness/**/,occlusion/**/,pbrMask,int3(0,1,2),float3(_Metallic,_Smoothness,_Occlusion),_IsSmoothnessReversed);
 
     float rough,a,a2;
-    CalcRoughness(smoothness,rough/**/,a/**/,a2/**/);
+    CalcRoughness(rough/**/,a/**/,a2/**/,smoothness);
 
     float3 lightDir = _MainLightPosition.xyz;
     float3 viewDir = normalize(_WorldSpaceCameraPos - worldPos);
@@ -99,13 +99,19 @@ half4 frag (v2f input) : SV_Target
     half4 mainTex = SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,input.uv);
     half3 albedo = 0;
     half alpha = 0;
-    CalcSurfaceColor(mainTex,_Color,_Cutoff,metallic,_AlphaPremultiply,albedo/**/,alpha/**/);
+    CalcSurfaceColor(albedo/**/,alpha/**/,mainTex,_Color,_Cutoff,metallic,_AlphaPremultiply,_AlphaChannel);
 
     half3 diffColor = albedo * (1-metallic);
     half3 specColor = lerp(0.04,albedo,metallic);
 
     // gi diff
-    half3 giDiff = CalcGIDiff(normal,diffColor);
+    half3 giDiff = 0;
+    branch_if(_CustomGIDiff){
+        giDiff = diffColor* _GIDiffColor;
+    }else{
+        giDiff = CalcGIDiff(normal,diffColor);
+    }
+    
     half3 giSpec = CalcGISpec(_EnvMap,sampler_EnvMap,_EnvMap_HDR,specColor,worldPos,normal,viewDir,0/*reflectDirOffset*/,_EnvMapIntensity,nv,rough,a2,smoothness,metallic,_FresnelWidth,_FresnelColor);
 
     // direct lighting
