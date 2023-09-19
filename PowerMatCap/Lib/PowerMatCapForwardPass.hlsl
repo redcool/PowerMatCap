@@ -6,7 +6,6 @@
 #include "../../PowerShaderLib/Lib/MaterialLib.hlsl"
 #include "../../PowerShaderLib/URPLib/URP_GI.hlsl"
 #include "../../PowerShaderLib/URPLib/Lighting.hlsl"
-#include "Lib/PowerMatCapInput.hlsl"
 
 struct appdata
 {
@@ -27,7 +26,7 @@ struct v2f
 
 v2f vert (appdata v)
 {
-    v2f o;
+    v2f o = (v2f)0;
     o.vertex = TransformObjectToHClip(v.vertex.xyz);
     o.uv = TRANSFORM_TEX(v.uv, _MainTex);
     TANGENT_SPACE_COMBINE(v.vertex,v.normal,v.tangent,o/**/);
@@ -51,17 +50,12 @@ float3 BlendNormal(float3 a,float3 b){
     return normalize(float3(a.xy*b.z+b.xy*a.z,a.z*b.z));
 }
 
-float3 CalcIbl(TEXTURECUBE_PARAM(cubemap,sampler_cubemap),half4 cubemapHDR,float rough,float3 reflectDir){
-    float mip = (1.7-0.7*rough) * rough * 6; 
-    float4 cubeCol = SAMPLE_TEXTURECUBE_LOD(cubemap,sampler_cubemap,reflectDir,mip);
-    return DecodeHDREnvironment(cubeCol,cubemapHDR);
-}
-
 half4 frag (v2f input) : SV_Target
 {
     TANGENT_SPACE_SPLIT(input);
     
-    branch_if(_NormalMapOn)
+    #if defined(_NORMAL)
+    // branch_if(_NormalMapOn)
     {
         float2 normalUV = input.uv * _NormalMap_ST.xy + _NormalMap_ST.zw;
         float2 detailUV = input.uv *  _DetailNormalMap_ST.xy + _DetailNormalMap_ST.zw;
@@ -71,6 +65,7 @@ half4 frag (v2f input) : SV_Target
         tn = BlendNormal(tn,detailTN);
         normal = (TangentToWorld(tn,input.tSpace0,input.tSpace1,input.tSpace2));
     }
+    #endif
     
     float nl = saturate(dot(_MainLightPosition.xyz,normal));// * 0.5+0.5;;
     float4 matCap = CalcMatCap(normal) * _MatCapScale;
@@ -94,6 +89,8 @@ half4 frag (v2f input) : SV_Target
     float nv = saturate(dot(normal,viewDir));
     float nh = saturate(dot(normal,h));
     float lh = saturate(dot(lightDir,h));
+
+
 
     // sample the texture
     half4 mainTex = SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,input.uv);
@@ -120,9 +117,11 @@ half4 frag (v2f input) : SV_Target
 
     // return shadowAtten;
     half3 radiance = nl * _MainLightColor.xyz * shadowAtten;
-    half3 specTerm = MinimalistCookTorrance(nh,lh,a,a2);
 
-    specTerm += matCap.xyz;
+    half3 specTerm = matCap.xyz;
+    #if defined(_PBR_ON)
+        specTerm += MinimalistCookTorrance(nh,lh,a,a2);
+    #endif
 
     half4 col = 0;
     // main light

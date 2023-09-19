@@ -1,5 +1,6 @@
 #if !defined(POWER_MATCAP_INPUT_HLSL)
 #define POWER_MATCAP_INPUT_HLSL
+#include "../../PowerShaderLib/Lib/UnityLib.hlsl"
 
 TEXTURE2D(_MainTex);SAMPLER(sampler_MainTex);
 TEXTURE2D(_NormalMap);SAMPLER(sampler_NormalMap);
@@ -14,7 +15,7 @@ float4 _MainTex_ST;
 float4 _Color;
 half _AlphaChannel;
 
-float _NormalMapOn;
+// float _NormalMapOn;
 float _NormalScale;
 float4 _NormalMap_ST;
 

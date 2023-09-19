@@ -9,7 +9,7 @@
         [GroupItem(Main)][hdr]_Color("_Color",color)=(1,1,1,1)
 
         [GroupHeader(Main,Normal)]
-        [GroupToggle(Main)]_NormalMapOn("_NormalMapOn",float) = 0
+        [GroupToggle(Main,_NORMAL)]_NormalMapOn("_NormalMapOn",float) = 0
         [GroupItem(Main)]_NormalMap("_NormalMap",2d)= ""{}
         [GroupItem(Main)]_NormalScale("_NormalScale",range(0,10)) = 1
 
@@ -17,6 +17,7 @@
         [GroupItem(Main)]_DetailNormalScale("_DetailNormalScale",range(0,10)) = 1
 
         [Group(Surface)]
+        [GroupToggle(Surface,_PBR_ON)]_PBROn("_PBROn",int) = 0
         [GroupItem(Surface)]_PbrMask("_PbrMask(R:Metallic,G:Smoothness,B:Occlusion)",2d)="white"{}
         [GroupItem(Surface)]_Metallic("_Metallic",range(0,1)) = 0.5
         [GroupItem(Surface)]_Smoothness("_Smoothness",range(0,1)) = 0.5
@@ -107,8 +108,8 @@
 
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE //_MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _SHADOWS_SOFT
-            #pragma shader_feature _ADDITIONAL_LIGHTS_ON
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma shader_feature _ADDITIONAL_LIGHTS_ON
 
             #pragma vertex vert
             #pragma fragment frag
@@ -116,7 +117,10 @@
             // Material Keywords
             #pragma shader_feature_local_fragment ALPHA_TEST
             #pragma shader_feature _RECEIVE_SHADOWS_OFF
+            #pragma shader_feature _PBR_ON
+            #pragma shader_feature _NORMAL
 
+            #include "Lib/PowerMatCapInput.hlsl"
             #include "Lib/PowerMatCapForwardPass.hlsl"
 
             ENDHLSL
