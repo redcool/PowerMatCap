@@ -6,6 +6,7 @@
 #include "../../PowerShaderLib/Lib/MaterialLib.hlsl"
 #include "../../PowerShaderLib/URPLib/URP_GI.hlsl"
 #include "../../PowerShaderLib/URPLib/Lighting.hlsl"
+#include "../../PowerShaderLib/Lib/MatCapLib.hlsl"
 
 struct appdata
 {
@@ -37,15 +38,6 @@ v2f vert (appdata v)
     return o;
 }
 
-float4 CalcMatCap(float3 normal){
-    float3 normalView = mul(UNITY_MATRIX_V,float4(normal,0)).xyz;
-    normalView = normalView*0.5+0.5;
-
-    float2 matUV = (normalView.xy) * _MatCap_ST.xy + _MatCap_ST.zw;
-    float4 matCap = SAMPLE_TEXTURE2D(_MatCap,sampler_MatCap,matUV);
-    return matCap;
-}
-
 float3 BlendNormal(float3 a,float3 b){
     return normalize(float3(a.xy*b.z+b.xy*a.z,a.z*b.z));
 }
@@ -66,14 +58,17 @@ half4 frag (v2f input) : SV_Target
         normal = (TangentToWorld(tn,input.tSpace0,input.tSpace1,input.tSpace2));
     }
     #endif
-    
-    float nl = saturate(dot(_MainLightPosition.xyz,normal));// * 0.5+0.5;;
-    float4 matCap = CalcMatCap(normal) * _MatCapScale;
 
     // mask
     float4 maskTex = SAMPLE_TEXTURE2D(_EnvMask,sampler_EnvMask,input.uv);
     float matCapMask = maskTex.x;
     float iblMask = maskTex.y;
+    
+    float nl = saturate(dot(_MainLightPosition.xyz,normal));// * 0.5+0.5;;
+    float4 matCap = SampleMatCap(_MatCap,sampler_MatCap,normal,_MatCap_ST);
+    // matCap.xyz = pow(matCap.xyz,_MatCapWidth.z);
+    matCap.xyz += smoothstep(_MatCapWidth.x,_MatCapWidth.y,matCap.xyz);
+    matCap.xyz *= _MatCapScale * matCapMask;
 
     float4 pbrMask = SAMPLE_TEXTURE2D(_PbrMask,sampler_PbrMask,input.uv);
     float metallic,smoothness,occlusion;
@@ -109,7 +104,7 @@ half4 frag (v2f input) : SV_Target
         giDiff = CalcGIDiff(normal,diffColor);
     }
     
-    half3 giSpec = CalcGISpec(_EnvMap,sampler_EnvMap,_EnvMap_HDR,specColor,worldPos,normal,viewDir,_EnvMapOffset,_EnvMapIntensity,nv,rough,a2,smoothness,metallic,_FresnelWidth,_FresnelColor);
+    half3 giSpec = CalcGISpec(_EnvMap,sampler_EnvMap,_EnvMap_HDR,specColor,worldPos,normal,viewDir,_EnvMapOffset,_EnvMapIntensity * iblMask,nv,rough,a2,smoothness,metallic,_FresnelWidth,_FresnelColor);
 
     // direct lighting
     float4 shadowCoord = TransformWorldToShadowCoord(worldPos);

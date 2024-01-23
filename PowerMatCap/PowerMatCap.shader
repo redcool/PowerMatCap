@@ -30,14 +30,15 @@
         [GroupHeader(Env Light,Matcap)]
         [GroupItem(Env Light)]_MatCap("_MatCap",2d)=""{}
         [GroupItem(Env Light)]_MatCapScale("_MatCapScale",range(0,10)) = 1
+        [GroupVectorSlider(Env Light,min max,0_1 0_1,,float)]_MatCapWidth("_MatCapWidth",vector) = (0,1,1,0)
 
         [GroupHeader(Env Light,IBL)]
         [GroupItem(Env Light)][NoScaleOffset]_EnvMap("_EnvMap",cube) = ""{}
-        [GroupItem(Env Light)]_EnvMapIntensity("_EnvMapIntensity",range(0,1)) = 0.5
+        [GroupItem(Env Light)]_EnvMapIntensity("_EnvMapIntensity",range(0,10)) = 0.5
         [GroupItem(Env Light)]_EnvMapOffset("_EnvMapOffset",vector) = (0,0,0,0)
 
         [GroupHeader(Env Light,Fresnel)]
-        [GroupVectorSlider(Env Light,FresnelWidthMin FresnelWidthMax,0_1 0_1)]_FresnelWidth("_FresnelWidth",vector) = (0,1,0,0)
+        [GroupVectorSlider(Env Light,min max,0_1 0_1)]_FresnelWidth("_FresnelWidth",vector) = (0,1,0,0)
         [GroupItem(Env Light)][hdr]_FresnelColor("_FresnelColor",color)  =(1,1,1,1)
 
         [Group(Shadow)]
@@ -120,6 +121,7 @@
             #pragma shader_feature _PBR_ON
             #pragma shader_feature _NORMAL
 
+            #define SMOOTH_FRESNEL
             #include "Lib/PowerMatCapInput.hlsl"
             #include "Lib/PowerMatCapForwardPass.hlsl"
 

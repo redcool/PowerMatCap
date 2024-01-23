@@ -11,25 +11,26 @@ TEXTURECUBE(_EnvMap);SAMPLER(sampler_EnvMap);
 TEXTURE2D(_PbrMask);SAMPLER(sampler_PbrMask);
 
 CBUFFER_START(UnityPerMaterial)
-float4 _MainTex_ST;
-float4 _Color;
+half4 _MainTex_ST;
+half4 _Color;
 half _AlphaChannel;
 
-// float _NormalMapOn;
-float _NormalScale;
-float4 _NormalMap_ST;
+// half _NormalMapOn;
+half _NormalScale;
+half4 _NormalMap_ST;
 
-float _DetailNormalScale;
-float4 _DetailNormalMap_ST;
+half _DetailNormalScale;
+half4 _DetailNormalMap_ST;
 
-float _MatCapScale;
-float4 _MatCap_ST;
+half _MatCapScale;
+half4 _MatCap_ST;
+half3 _MatCapWidth;
 
-float _EnvMapIntensity;
-float3 _EnvMapOffset;
-float4 _EnvMap_HDR;
+half _EnvMapIntensity;
+half3 _EnvMapOffset;
+half4 _EnvMap_HDR;
 half4 _FresnelColor;
-float2 _FresnelWidth;
+half2 _FresnelWidth;
 
 half _Smoothness;
 half _Metallic;
