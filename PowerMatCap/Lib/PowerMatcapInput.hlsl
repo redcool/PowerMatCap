@@ -9,6 +9,7 @@ TEXTURE2D(_MatCap);SAMPLER(sampler_MatCap);
 TEXTURE2D(_EnvMask);SAMPLER(sampler_EnvMask);
 TEXTURECUBE(_EnvMap);SAMPLER(sampler_EnvMap);
 TEXTURE2D(_PbrMask);SAMPLER(sampler_PbrMask);
+TEXTURE2D(_EmissionMap);SAMPLER(sampler_EmissionMap);
 
 CBUFFER_START(UnityPerMaterial)
 half4 _MainTex_ST;
@@ -45,6 +46,14 @@ half _Cutoff;
 
 half _CustomShadowNormalBias;
 half _CustomShadowDepthBias;
+//----------------------------------------
+half4 _EmissionColor;
+//----------------------------------------
+half _FogOn;
+half _FogNoiseOn;
+half _DepthFogOn;
+half _HeightFogOn;
+
 CBUFFER_END
 
 #endif //POWER_MATCAP_INPUT_HLSL

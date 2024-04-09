@@ -41,6 +41,19 @@
         [GroupVectorSlider(Env Light,min max,0_1 0_1)]_FresnelWidth("_FresnelWidth",vector) = (0,1,0,0)
         [GroupItem(Env Light)][hdr]_FresnelColor("_FresnelColor",color)  =(1,1,1,1)
 
+//================================================= emission
+        [Group(Emission)]
+        [GroupToggle(Emission,_EMISSION)]_EmissionOn("_EmissionOn",int) = 0
+        [GroupItem(Emission)]_EmissionMap("_EmissionMap(rgb:Color,a:Mask)",2d)=""{}
+        [hdr][GroupItem(Emission)]_EmissionColor("_EmissionColor(w:mask)",color) = (0,0,0,0)
+//=================================================  weather
+        [Group(Fog)]
+        [GroupToggle(Fog)]_FogOn("_FogOn",int) = 1
+        // [GroupToggle(Fog,SIMPLE_FOG,use simple linear depth height fog)]_SimpleFog("_SimpleFog",int) = 0
+        [GroupToggle(Fog)]_FogNoiseOn("_FogNoiseOn",int) = 0
+        [GroupToggle(Fog)]_DepthFogOn("_DepthFogOn",int) = 1
+        [GroupToggle(Fog)]_HeightFogOn("_HeightFogOn",int) = 1
+
         [Group(Shadow)]
         //[LineHeader(Shadows)]
         [GroupToggle(Shadow,_RECEIVE_SHADOWS_OFF)]_ReceiveShadowOff("_ReceiveShadowOff",int) = 0
@@ -111,6 +124,7 @@
             #pragma multi_compile _ _SHADOWS_SOFT
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma shader_feature _ADDITIONAL_LIGHTS_ON
+            #pragma shader_feature _EMISSION
 
             #pragma vertex vert
             #pragma fragment frag

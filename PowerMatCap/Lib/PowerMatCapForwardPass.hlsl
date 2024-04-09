@@ -7,6 +7,7 @@
 #include "../../PowerShaderLib/URPLib/URP_GI.hlsl"
 #include "../../PowerShaderLib/URPLib/Lighting.hlsl"
 #include "../../PowerShaderLib/Lib/MatCapLib.hlsl"
+#include "../../PowerShaderLib/Lib/FogLib.hlsl"
 
 struct appdata
 {
@@ -14,6 +15,7 @@ struct appdata
     float2 uv : TEXCOORD0;
     float3 normal:NORMAL;
     float4 tangent:TANGENT;
+
 };
 
 struct v2f
@@ -21,6 +23,7 @@ struct v2f
     float2 uv : TEXCOORD0;
     float4 vertex : SV_POSITION;
 
+    float4 fogCoord:TEXCOORD1;//fogCoord{x,y}, z:heightColorAtten    
     TANGENT_SPACE_DECLARE(2,3,4);
     float3 reflectDir:TEXCOORD5;
 };
@@ -31,10 +34,12 @@ v2f vert (appdata v)
     o.vertex = TransformObjectToHClip(v.vertex.xyz);
     o.uv = TRANSFORM_TEX(v.uv, _MainTex);
     TANGENT_SPACE_COMBINE(v.vertex,v.normal,v.tangent,o/**/);
+    o.fogCoord.xy = CalcFogFactor(p.xyz,o.vertex.z,_HeightFogOn,_DepthFogOn);
 
     float3 viewDir = normalize(GetWorldSpaceViewDir(p));
     float3 reflectDir = reflect(-viewDir,n);
     o.reflectDir = (reflectDir+_EnvMapOffset);
+
     return o;
 }
 
@@ -128,6 +133,17 @@ half4 frag (v2f input) : SV_Target
         float4 shadowMask = 1;
         col.xyz += CalcAdditionalLights(worldPos,diffColor,specColor,normal,viewDir,a,a2,shadowMask);
     #endif
+
+//------ emission
+    half3 emissionColor = 0;
+    #if defined(_EMISSION)
+        emissionColor += CalcEmission(SAMPLE_TEXTURE2D(_EmissionMap,sampler_EmissionMap,input.uv),_EmissionColor.xyz,_EmissionColor.w);
+    #endif
+    col.xyz += emissionColor;
+//------ fog
+    // col.rgb = MixFog(col.xyz,i.fogFactor.x);
+    BlendFogSphereKeyword(col.rgb/**/,worldPos,input.fogCoord.xy,_HeightFogOn,_FogNoiseOn,_DepthFogOn); // 2fps
+
     col.w = alpha;
     return col;
 }
