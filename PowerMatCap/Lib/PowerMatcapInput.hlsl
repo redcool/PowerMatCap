@@ -33,7 +33,7 @@ half4 _EnvMap_HDR;
 half4 _FresnelColor;
 half2 _FresnelWidth;
 
-half _Smoothness;
+half _Smoothness,_MRTSmoothness;
 half _Metallic;
 half _Occlusion;
 half _IsSmoothnessReversed;

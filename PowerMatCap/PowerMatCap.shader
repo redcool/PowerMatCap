@@ -24,6 +24,9 @@
         [GroupItem(Surface)]_Occlusion("_Occlusion",range(0,1)) = 0
         [GroupToggle(Surface)]_IsSmoothnessReversed("_IsSmoothnessReversed",int) = 0
         
+        [GroupHeader(Surface,mrt options)]
+        [GroupItem(Surface,ssr use this)]_MRTSmoothness("_MRTSmoothness",range(0,1)) = 1
+        
         [Group(Env Light)]
         [GroupItem(Env Light)][NoScaleOffset]_EnvMask("_EnvMask(R:MatcapMask,G:IBLMask)",2d) = "white"{}
 
