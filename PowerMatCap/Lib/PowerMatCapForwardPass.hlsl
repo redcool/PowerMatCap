@@ -8,6 +8,7 @@
 #include "../../PowerShaderLib/URPLib/Lighting.hlsl"
 #include "../../PowerShaderLib/Lib/MatCapLib.hlsl"
 #include "../../PowerShaderLib/Lib/FogLib.hlsl"
+#include "../../PowerShaderLib/URPLib/URP_MotionVectors.hlsl"
 
 struct appdata
 {
@@ -15,7 +16,7 @@ struct appdata
     float2 uv : TEXCOORD0;
     float3 normal:NORMAL;
     float4 tangent:TANGENT;
-
+    DECLARE_MOTION_VS_INPUT(prevPos);
 };
 
 struct v2f
@@ -26,6 +27,8 @@ struct v2f
     float4 fogCoord:TEXCOORD1;//fogCoord{x,y}, z:heightColorAtten    
     TANGENT_SPACE_DECLARE(2,3,4);
     float3 reflectDir:TEXCOORD5;
+    // motion vectors    
+    DECLARE_MOTION_VS_OUTPUT(6,7);
 };
 
 v2f vert (appdata v)
@@ -40,6 +43,8 @@ v2f vert (appdata v)
     float3 reflectDir = reflect(-viewDir,n);
     o.reflectDir = (reflectDir+_EnvMapOffset);
 
+    CALC_MOTION_POSITIONS(v.prevPos,v.vertex,o,o.vertex);
+
     return o;
 }
 
@@ -47,7 +52,10 @@ float3 BlendNormal(float3 a,float3 b){
     return normalize(float3(a.xy*b.z+b.xy*a.z,a.z*b.z));
 }
 
-half4 frag (v2f input) : SV_Target
+half4 frag (v2f input,
+    out float4 outputNormal:SV_TARGET1,
+    out float4 outputMotionVectors:SV_TARGET2
+) : SV_Target
 {
     TANGENT_SPACE_SPLIT(input);
     
@@ -90,7 +98,11 @@ half4 frag (v2f input) : SV_Target
     float nh = saturate(dot(normal,h));
     float lh = saturate(dot(lightDir,h));
 
-
+    //-------- output mrt
+    // output world normal
+    outputNormal = half4(normal.xyz,smoothness);
+    // output motion
+    outputMotionVectors = CALC_MOTION_VECTORS(input);
 
     // sample the texture
     half4 mainTex = SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,input.uv);
