@@ -101,7 +101,7 @@ half4 frag (v2f input,
 
     //-------- output mrt
     // output world normal
-    outputNormal = half4(normal.xyz,smoothness);
+    outputNormal = half4(normal.xyz,smoothness * _MRTSmoothness);
     // output motion
     outputMotionVectors = CALC_MOTION_VECTORS(input);
 
