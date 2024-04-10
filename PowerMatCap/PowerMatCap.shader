@@ -31,6 +31,7 @@
         [GroupItem(Env Light)]_MatCap("_MatCap",2d)=""{}
         [GroupItem(Env Light)]_MatCapScale("_MatCapScale",range(0,10)) = 1
         [GroupVectorSlider(Env Light,min max,0_1 0_1,,float)]_MatCapWidth("_MatCapWidth",vector) = (0,1,1,0)
+        [GroupItem(Env Light)]_MatCapAngle("_MatCapAngle",range(0,360)) = 1
 
         [GroupHeader(Env Light,IBL)]
         [GroupItem(Env Light)][NoScaleOffset]_EnvMap("_EnvMap",cube) = ""{}
@@ -136,6 +137,7 @@
             #pragma shader_feature _NORMAL
 
             #define SMOOTH_FRESNEL
+            #define MATCAP_UV_ROTATE
             #include "Lib/PowerMatCapInput.hlsl"
             #include "Lib/PowerMatCapForwardPass.hlsl"
 

@@ -8,6 +8,7 @@
 #include "../../PowerShaderLib/URPLib/Lighting.hlsl"
 #include "../../PowerShaderLib/Lib/MatCapLib.hlsl"
 #include "../../PowerShaderLib/Lib/FogLib.hlsl"
+#include "../../PowerShaderLib/Lib/MathLib.hlsl"
 #include "../../PowerShaderLib/URPLib/URP_MotionVectors.hlsl"
 
 struct appdata
@@ -21,7 +22,7 @@ struct appdata
 
 struct v2f
 {
-    float2 uv : TEXCOORD0;
+    float4 uv : TEXCOORD0;
     float4 vertex : SV_POSITION;
 
     float4 fogCoord:TEXCOORD1;//fogCoord{x,y}, z:heightColorAtten    
@@ -35,7 +36,7 @@ v2f vert (appdata v)
 {
     v2f o = (v2f)0;
     o.vertex = TransformObjectToHClip(v.vertex.xyz);
-    o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+    o.uv = float4(v.uv,TRANSFORM_TEX(v.uv, _MainTex));
     TANGENT_SPACE_COMBINE(v.vertex,v.normal,v.tangent,o/**/);
     o.fogCoord.xy = CalcFogFactor(p.xyz,o.vertex.z,_HeightFogOn,_DepthFogOn);
 
@@ -58,7 +59,7 @@ half4 frag (v2f input,
 ) : SV_Target
 {
     TANGENT_SPACE_SPLIT(input);
-    
+
     #if defined(_NORMAL)
     // branch_if(_NormalMapOn)
     {
@@ -78,7 +79,7 @@ half4 frag (v2f input,
     float iblMask = maskTex.y;
     
     float nl = saturate(dot(_MainLightPosition.xyz,normal));// * 0.5+0.5;;
-    float4 matCap = SampleMatCap(_MatCap,sampler_MatCap,normal,_MatCap_ST);
+    float4 matCap = SampleMatCap(_MatCap,sampler_MatCap,normal,_MatCap_ST,_MatCapAngle);
     // matCap.xyz = pow(matCap.xyz,_MatCapWidth.z);
     matCap.xyz += smoothstep(_MatCapWidth.x,_MatCapWidth.y,matCap.xyz);
     matCap.xyz *= _MatCapScale * matCapMask;
@@ -105,7 +106,7 @@ half4 frag (v2f input,
     outputMotionVectors = CALC_MOTION_VECTORS(input);
 
     // sample the texture
-    half4 mainTex = SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,input.uv);
+    half4 mainTex = SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,input.uv.zw);
     half3 albedo = 0;
     half alpha = 0;
     CalcSurfaceColor(albedo/**/,alpha/**/,mainTex,_Color,_Cutoff,metallic,_AlphaPremultiply,_AlphaChannel);

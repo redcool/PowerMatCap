@@ -26,6 +26,7 @@ half4 _DetailNormalMap_ST;
 half _MatCapScale;
 half4 _MatCap_ST;
 half3 _MatCapWidth;
+half _MatCapAngle;
 
 half _EnvMapIntensity;
 half3 _EnvMapOffset;
