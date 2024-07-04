@@ -2,7 +2,7 @@
 {
     Properties
     {
-        [GroupHeader(v0.0.3)]
+        [GroupHeader(v0.0.4)]
         [Group(Main)]
         [GroupHeader(Main,Main)]
         [GroupItem(Main)]_MainTex ("_MainTex", 2D) = "white" {}
@@ -92,7 +92,7 @@
 
         [GroupHeader(Alpha,Channel)]
         [GroupEnum(Alpha,r g b a,0 1 2 3)]_AlphaChannel("_AlphaChannel",int) = 3
-
+// ================================================== StateSettings
         [Group(Settings)]
         [GroupEnum(Settings,UnityEngine.Rendering.CullMode)]_CullMode("_CullMode",int) = 2
 		[GroupToggle(Settings)]_ZWriteMode("ZWriteMode",int) = 1
@@ -100,6 +100,13 @@
 		Disabled,Never,Less,Equal,LessEqual,Greater,NotEqual,GreaterEqual,Always
 		*/
 		[GroupEnum(Settings,UnityEngine.Rendering.CompareFunction)]_ZTestMode("_ZTestMode",float) = 4
+// ================================================== stencil settings
+        [Group(Stencil)]
+		[GroupEnum(Stencil,UnityEngine.Rendering.CompareFunction)]_StencilComp ("Stencil Comparison", Float) = 0
+        [GroupItem(Stencil)]_Stencil ("Stencil ID", int) = 0
+        [GroupEnum(Stencil,UnityEngine.Rendering.StencilOp)]_StencilOp ("Stencil Operation", Float) = 0
+        [HideInInspector] _StencilWriteMask ("Stencil Write Mask", Float) = 255
+        [HideInInspector] _StencilReadMask ("Stencil Read Mask", Float) = 255        
     }
     SubShader
     {
@@ -115,6 +122,15 @@
 			// BlendOp[_BlendOp]
 			Cull[_CullMode]
 			ztest[_ZTestMode]
+
+            Stencil
+            {
+                Ref [_Stencil]
+                Comp [_StencilComp]
+                Pass [_StencilOp]
+                ReadMask [_StencilReadMask]
+                WriteMask [_StencilWriteMask]
+            }
 
             HLSLPROGRAM
             #pragma target 3.0
