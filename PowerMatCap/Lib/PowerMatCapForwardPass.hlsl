@@ -15,6 +15,7 @@ struct appdata
 {
     float4 vertex : POSITION;
     float2 uv : TEXCOORD0;
+    float2 uv1:TEXCOORD1;
     float3 normal:NORMAL;
     float4 tangent:TANGENT;
     DECLARE_MOTION_VS_INPUT(prevPos);
@@ -30,6 +31,7 @@ struct v2f
     float3 reflectDir:TEXCOORD5;
     // motion vectors    
     DECLARE_MOTION_VS_OUTPUT(6,7);
+    float4 lightmapUV:TEXCOORD8;
 };
 
 v2f vert (appdata v)
@@ -45,7 +47,7 @@ v2f vert (appdata v)
     o.reflectDir = (reflectDir+_EnvMapOffset);
 
     CALC_MOTION_POSITIONS(v.prevPos,v.vertex,o,o.vertex);
-
+    o.lightmapUV.xy = v.uv1 * unity_LightmapST.xy + unity_LightmapST.zw;
     return o;
 }
 
@@ -91,7 +93,13 @@ half4 frag (v2f input,
     float rough,a,a2;
     CalcRoughness(rough/**/,a/**/,a2/**/,smoothness);
 
-    float3 lightDir = _MainLightPosition.xyz;
+    // Main Light
+    float2 lightmapUV = input.lightmapUV.xy;
+    float4 shadowMask = SampleShadowMask(lightmapUV);
+    float4 shadowCoord = TransformWorldToShadowCoord(worldPos);
+    Light mainLight = GetMainLight(shadowCoord,worldPos,shadowMask,0);
+
+    float3 lightDir = mainLight.direction;
     float3 viewDir = normalize(_WorldSpaceCameraPos - worldPos);
 
     float3 h = normalize(lightDir + viewDir);
@@ -125,11 +133,10 @@ half4 frag (v2f input,
     half3 giSpec = CalcGISpec(_EnvMap,sampler_EnvMap,_EnvMap_HDR,specColor,worldPos,normal,viewDir,_EnvMapOffset,_EnvMapIntensity * iblMask,nv,rough,a2,smoothness,metallic,_FresnelWidth,_FresnelColor);
 
     // direct lighting
-    float4 shadowCoord = TransformWorldToShadowCoord(worldPos);
-    half shadowAtten = CalcShadow(shadowCoord,worldPos,0.1);
+    // half shadowAtten = CalcShadow(shadowCoord,worldPos,0.1);
 
     // return shadowAtten;
-    half3 radiance = nl * _MainLightColor.xyz * shadowAtten;
+    float3 radiance = mainLight.color * (nl * mainLight.shadowAttenuation * mainLight.distanceAttenuation);
 
     half3 specTerm = matCap.xyz;
     #if defined(_PBR_ON)
@@ -143,7 +150,6 @@ half4 frag (v2f input,
 
     // additional lights
     #if defined(_ADDITIONAL_LIGHTS_ON)
-        float4 shadowMask = 1;
         col.xyz += CalcAdditionalLights(worldPos,diffColor,specColor,normal,viewDir,a,a2,shadowMask);
     #endif
 
