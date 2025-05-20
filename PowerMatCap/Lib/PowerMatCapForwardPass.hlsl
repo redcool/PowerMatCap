@@ -51,9 +51,9 @@ v2f vert (appdata v)
     return o;
 }
 
-float3 BlendNormal(float3 a,float3 b){
-    return normalize(float3(a.xy*b.z+b.xy*a.z,a.z*b.z));
-}
+// float3 BlendNormal(float3 a,float3 b){
+//     return normalize(float3(a.xy*b.z+b.xy*a.z,a.z*b.z));
+// }
 
 half4 frag (v2f input,
     out float4 outputNormal:SV_TARGET1,
