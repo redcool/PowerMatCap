@@ -29,18 +29,15 @@ struct appdata
 
 struct v2f
 {
-    float4 uv : TEXCOORD0;
     float4 vertex : SV_POSITION;
-
+    float4 uv : TEXCOORD0;
     float4 fogCoord:TEXCOORD1;//fogCoord{x,y}, z:heightColorAtten    
     TANGENT_SPACE_DECLARE(2,3,4);
     float3 reflectDir:TEXCOORD5;
     // motion vectors    
     DECLARE_MOTION_VS_OUTPUT(6,7);
     float4 lightmapUV:TEXCOORD8;
-
-    //animTexture
-    float4 weights:TECOORD2;
+    float4 localPos:TEXCOORD9;
 };
 
 v2f vert (appdata v)
@@ -64,12 +61,35 @@ v2f vert (appdata v)
 
     CALC_MOTION_POSITIONS(v.prevPos,v.vertex,o,o.vertex);
     o.lightmapUV.xy = v.uv1 * unity_LightmapST.xy + unity_LightmapST.zw;
+    o.localPos = v.vertex;
     return o;
 }
 
 // float3 BlendNormal(float3 a,float3 b){
 //     return normalize(float3(a.xy*b.z+b.xy*a.z,a.z*b.z));
 // }
+/**
+    LocalPos topDown  dissolve
+*/
+float ApplyPosDissolve(half noise,float3 localPos,float3 maxLocalPos,float dissolveValue,float4 dissolveRange){
+    #define noiseEdge dissolveRange.z
+    #define noiseEdgeOffset dissolveRange.w
+
+    float yRate = (localPos.y/maxLocalPos.y);
+    // noise mask
+    float noiseMask = abs(yRate- dissolveValue + noiseEdgeOffset);
+    noiseMask = smoothstep(noiseEdge,0,noiseMask);
+    // apply noiseMask
+    noise *= noiseMask;
+    // return noise;
+    
+    float rate = (dissolveValue -yRate);
+    rate = smoothstep(dissolveRange.x,dissolveRange.y,rate);
+    rate +=noise;
+    rate = saturate(rate);
+    clip(rate-0.01);
+    return rate;
+}
 
 half4 frag (v2f input,
     out float4 outputNormal:SV_TARGET1,
@@ -89,6 +109,14 @@ half4 frag (v2f input,
         tn = BlendNormal(tn,detailTN);
         normal = (TangentToWorld(tn,input.tSpace0,input.tSpace1,input.tSpace2));
     }
+    #endif
+
+    half dissolveAlphaRate = 1;
+    #if defined(_DISSOLVE_ON)
+        half noise = SAMPLE_TEXTURE2D(_DissolveNoiseTex,sampler_DissolveNoiseTex,input.uv.xy * _DissolveNoiseTex_ST.xy+ _DissolveNoiseTex_ST.zw);
+        noise *=_DissolveNoiseScale;
+
+         ApplyPosDissolve(noise,input.localPos.xyz,_MaxLocalPos.xyz,_DissolveValue,_DissolveRange);
     #endif
 
     // mask
@@ -131,10 +159,13 @@ half4 frag (v2f input,
 
     // sample the texture
     half4 mainTex = SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,input.uv.zw);
+    mainTex.w *= dissolveAlphaRate;
+
     half3 albedo = 0;
     half alpha = 0;
-    CalcSurfaceColor(albedo/**/,alpha/**/,mainTex,_Color,_Cutoff,metallic,_AlphaPremultiply,_AlphaChannel);
+    CalcSurfaceColor(albedo/**/,alpha/**/,mainTex,_Color,_Cutoff,metallic,_AlphaPremultiply,_AlphaChannel);    
 
+    // calc light
     half3 diffColor = albedo * (1-metallic);
     half3 specColor = lerp(0.04,albedo,metallic);
 
@@ -163,6 +194,8 @@ half4 frag (v2f input,
     // main light
     col.xyz = (giDiff + giSpec) * occlusion;
     col.xyz += (diffColor + specColor * specTerm) * radiance;
+    // apply gray
+    col.xyz = _GrayOn ? dot(half3(0.2,0.7,0.02),col.xyz) : col.xyz;
 
     // additional lights
     #if defined(_ADDITIONAL_LIGHTS_ON)

@@ -10,11 +10,13 @@ TEXTURE2D(_EnvMask);SAMPLER(sampler_EnvMask);
 TEXTURECUBE(_EnvMap);SAMPLER(sampler_EnvMap);
 TEXTURE2D(_PbrMask);SAMPLER(sampler_PbrMask);
 TEXTURE2D(_EmissionMap);SAMPLER(sampler_EmissionMap);
+TEXTURE2D(_DissolveNoiseTex);SAMPLER(sampler_DissolveNoiseTex);
 
 CBUFFER_START(UnityPerMaterial)
 half4 _MainTex_ST;
 half4 _Color;
 half _AlphaChannel;
+half _GrayOn;
 
 // half _NormalMapOn;
 half _NormalScale;
@@ -67,6 +69,15 @@ half _PlayTime;
 half _OffsetPlayTime;
             
 half4 _AnimTex_TexelSize;
+//---------------------------------------- effects
+// half _DissolveOn;
+// half _DissolveTexChannel;
+half _DissolveValue;
+half4 _DissolveRange;
+half3 _MaxLocalPos;
+
+half4 _DissolveNoiseTex_ST;
+half _DissolveNoiseScale;
 
 CBUFFER_END
 

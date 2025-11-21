@@ -3,10 +3,12 @@
     Properties
     {
         [GroupHeader(v0.0.4)]
+//================================================= main        
         [Group(Main)]
         [GroupHeader(Main,Main)]
         [GroupItem(Main)]_MainTex ("_MainTex", 2D) = "white" {}
         [GroupItem(Main)][hdr]_Color("_Color",color)=(1,1,1,1)
+        [GroupToggle(Main,,main color apply gray )]_GrayOn("_GrayOn",float) = 0
 
         [GroupHeader(Main,Normal)]
         [GroupToggle(Main,_NORMAL)]_NormalMapOn("_NormalMapOn",float) = 0
@@ -15,7 +17,16 @@
 
         [GroupItem(Main)]_DetailNormalMap("_DetailNormalMap",2d)=""{}
         [GroupItem(Main)]_DetailNormalScale("_DetailNormalScale",range(0,10)) = 1
-
+//================================================= dissolve
+        [Group(Effects)]
+        [GroupToggle(Effects,_DISSOLVE_ON)] _DissolveOn("_DissolveOn",float) = 0
+        [GroupItem(Effects)]_DissolveNoiseTex ("_DissolveNoiseTex", 2D) = "white" {}
+        [GroupItem(Effects)]_DissolveNoiseScale ("_DissolveNoiseScale", range(0,4)) = 0
+        // [GroupEnum(Effects,r g b a,0 1 2 3)] _DissolveTexChannel("_DissolveTexChannel",float) = 0
+        [GroupItem(Effects)] _MaxLocalPos("_MaxLocalPos",vector) = (0,2,0,0)
+        [GroupVectorSlider(Effects,min max noiseEdge noiseEdgeOffset,0_1 0_1 0_1 0_.1,dissolve smooth)]_DissolveRange("_DissolveRange",vector) = (0,1,0.02,0)
+        [GroupItem(Effects)]_DissolveValue("_DissolveValue",range(0,1)) = 0
+//================================================= Surface lighting
         [Group(Surface)]
         [GroupToggle(Surface,_PBR_ON)]_PBROn("_PBROn",int) = 0
         [GroupItem(Surface)]_PbrMask("_PbrMask(R:Metallic,G:Smoothness,B:Occlusion)",2d)="white"{}
@@ -26,7 +37,7 @@
         
         [GroupHeader(Surface,mrt options)]
         [GroupItem(Surface,ssr use this)]_MRTSmoothness("_MRTSmoothness",range(0,1)) = 1
-        
+//================================================= env light        
         [Group(Env Light)]
         [GroupItem(Env Light)][NoScaleOffset]_EnvMask("_EnvMask(R:MatcapMask,G:IBLMask)",2d) = "white"{}
 
@@ -58,7 +69,7 @@
         [GroupToggle(Fog)]_FogNoiseOn("_FogNoiseOn",int) = 0
         [GroupToggle(Fog)]_DepthFogOn("_DepthFogOn",int) = 1
         [GroupToggle(Fog)]_HeightFogOn("_HeightFogOn",int) = 1
-
+//================================================= shadow
         [Group(Shadow)]
         //[LineHeader(Shadows)]
         [GroupToggle(Shadow,_RECEIVE_SHADOWS_OFF)]_ReceiveShadowOff("_ReceiveShadowOff",int) = 0
@@ -67,16 +78,16 @@
         [GroupHeader(Shadow,custom bias)]
         [GroupSlider(Shadow)]_CustomShadowNormalBias("_CustomShadowNormalBias",range(-1,1)) = 0
         [GroupSlider(Shadow)]_CustomShadowDepthBias("_CustomShadowDepthBias",range(-1,1)) = 0
-
+//================================================= additional light
         [Group(AdditionalLights)]
         [GroupToggle(AdditionalLights,_ADDITIONAL_LIGHTS_ON)]_CalcAdditionalLights("_CalcAdditionalLights",int) = 0
         // [GroupToggle(AdditionalLights,_ADDITIONAL_LIGHT_SHADOWS)]_ReceiveAdditionalLightShadow("_ReceiveAdditionalLightShadow",int) = 1
         // [GroupToggle(AdditionalLights,_ADDITIONAL_LIGHT_SHADOWS_SOFT)]_AdditionalIghtSoftShadow("_AdditionalIghtSoftShadow",int) = 0
-
+//================================================= gi
         [Group(GI)]
         [GroupToggle(GI)]_CustomGIDiff("_CustomGIDiff",int) = 0
         [GroupItem(GI)]_GIDiffColor("_GIDiffColor",color) = (1,1,1,1)
-
+//================================================= alpha
         [Group(Alpha)]
         [GroupHeader(Alpha,BlendMode)]
         [GroupPresetBlendMode(Alpha,,_SrcMode,_DstMode)]_PresetBlendMode("_PresetBlendMode",int)=0
@@ -92,7 +103,7 @@
         [GroupSlider(Alpha)]_Cutoff("_Cutoff",range(0,1)) = 0.5
 
         [GroupHeader(Alpha,Channel)]
-        [GroupEnum(Alpha,r g b a,0 1 2 3)]_AlphaChannel("_AlphaChannel",int) = 3
+        [GroupEnum(Alpha,r g b a,0 1 2 3)] _AlphaChannel("_AlphaChannel",int) = 3
 //================================================= AnimTex,get matrix from _AnimTexture
 		[Group(AnimTex)]
         [GroupHeader(AnimTex,Mode)]
@@ -169,8 +180,10 @@
 
             // Material Keywords
             #pragma shader_feature_local_fragment ALPHA_TEST
+            #pragma shader_feature_fragment _DISSOLVE_ON
+
             #pragma shader_feature _RECEIVE_SHADOWS_OFF
-            #pragma shader_feature _PBR_ON
+            #pragma shader_feature_fragment _PBR_ON
             #pragma shader_feature _NORMAL
             #pragma shader_feature_vertex _ _ANIM_TEX_ON _GPU_SKINNED_ON
 
@@ -199,6 +212,7 @@
             // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local_fragment  ALPHA_TEST
+            #pragma shader_feature_local_fragment _DISSOLVE_ON
             #pragma shader_feature_vertex _ _ANIM_TEX_ON _GPU_SKINNED_ON
 
             #include "../../PowerShaderLib/Lib/UnityLib.hlsl"
@@ -224,6 +238,7 @@
             // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local_fragment ALPHA_TEST
+            #pragma shader_feature_local_fragment _DISSOLVE_ON
             // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
             #pragma shader_feature_vertex _ _ANIM_TEX_ON _GPU_SKINNED_ON
