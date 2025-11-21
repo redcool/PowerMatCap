@@ -50,6 +50,7 @@
         [GroupToggle(Emission,_EMISSION)]_EmissionOn("_EmissionOn",int) = 0
         [GroupItem(Emission)]_EmissionMap("_EmissionMap(rgb:Color,a:Mask)",2d)=""{}
         [hdr][GroupItem(Emission)]_EmissionColor("_EmissionColor(w:mask)",color) = (0,0,0,0)
+   
 //=================================================  weather
         [Group(Fog)]
         [GroupToggle(Fog)]_FogOn("_FogOn",int) = 1
@@ -92,6 +93,23 @@
 
         [GroupHeader(Alpha,Channel)]
         [GroupEnum(Alpha,r g b a,0 1 2 3)]_AlphaChannel("_AlphaChannel",int) = 3
+//================================================= AnimTex,get matrix from _AnimTexture
+		[Group(AnimTex)]
+        [GroupHeader(AnimTex,Mode)]
+        [GroupEnum(AnimTex,_None _ANIM_TEX_ON _GPU_SKINNED_ON,true,use AnimTex or GpuSkin)] _GpuSkinnedOn("_GpuSkinOn",float) = 0
+
+		[GroupHeader(AnimTex,Info)]
+		[GroupItem(AnimTex)] _AnimTex("Anim Tex",2d) = ""{}
+		[GroupItem(AnimTex)] _AnimSampleRate("Anim Sample Rate",float) = 30
+		[GroupItem(AnimTex)] _StartFrame("Start Frame",float) = 0
+		[GroupItem(AnimTex)] _EndFrame("End Frame",float) = 1
+		[GroupItem(AnimTex)] _Loop("Loop[0:Loop,1:Clamp]",range(0,1)) = 1
+		[GroupItem(AnimTex)] _PlayTime("Play Time",float) = 0
+		[GroupItem(AnimTex)] _OffsetPlayTime("Offset Play Time",float) = 0
+
+		[GroupItem(AnimTex)] _NextStartFrame("Next Anim Start Frame",float) = 0
+		[GroupItem(AnimTex)] _NextEndFrame("Next Anim End Frame",float) = 0
+		[GroupItem(AnimTex)] _CrossLerp("Cross Lerp",range(0,1)) = 0
 // ================================================== StateSettings
         [Group(Settings)]
         [GroupEnum(Settings,UnityEngine.Rendering.CullMode)]_CullMode("_CullMode",int) = 2
@@ -154,6 +172,7 @@
             #pragma shader_feature _RECEIVE_SHADOWS_OFF
             #pragma shader_feature _PBR_ON
             #pragma shader_feature _NORMAL
+            #pragma shader_feature_vertex _ _ANIM_TEX_ON _GPU_SKINNED_ON
 
             #define SMOOTH_FRESNEL
             #define MATCAP_UV_ROTATE
@@ -180,6 +199,7 @@
             // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local_fragment  ALPHA_TEST
+            #pragma shader_feature_vertex _ _ANIM_TEX_ON _GPU_SKINNED_ON
 
             #include "../../PowerShaderLib/Lib/UnityLib.hlsl"
             #include "Lib/PowerMatCapInput.hlsl"
@@ -206,6 +226,7 @@
             #pragma shader_feature_local_fragment ALPHA_TEST
             // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+            #pragma shader_feature_vertex _ _ANIM_TEX_ON _GPU_SKINNED_ON
 
             #include "../../PowerShaderLib/Lib/UnityLib.hlsl"
             #include "Lib/PowerMatCapInput.hlsl"

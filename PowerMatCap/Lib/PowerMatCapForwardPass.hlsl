@@ -10,15 +10,21 @@
 #include "../../PowerShaderLib/Lib/FogLib.hlsl"
 #include "../../PowerShaderLib/Lib/MathLib.hlsl"
 #include "../../PowerShaderLib/URPLib/URP_MotionVectors.hlsl"
+#include "../../PowerShaderLib/Lib/Skinned/AnimTextureLib.hlsl"
 
 struct appdata
 {
     float4 vertex : POSITION;
     float2 uv : TEXCOORD0;
     float2 uv1:TEXCOORD1;
-    float3 normal:NORMAL;
+    float4 normal:NORMAL;
     float4 tangent:TANGENT;
     DECLARE_MOTION_VS_INPUT(prevPos);
+
+    //animTexture
+    uint vertexId:SV_VertexID;
+    float4 weights:BLENDWEIGHTS;
+    uint4 indices:BLENDINDICES;
 };
 
 struct v2f
@@ -32,10 +38,20 @@ struct v2f
     // motion vectors    
     DECLARE_MOTION_VS_OUTPUT(6,7);
     float4 lightmapUV:TEXCOORD8;
+
+    //animTexture
+    float4 weights:TECOORD2;
 };
 
 v2f vert (appdata v)
 {
+    #if defined(_ANIM_TEX_ON)
+        CalcBlendAnimPos(v.vertexId,v.vertex/**/,v.normal/**/,v.tangent/**/,v.weights,v.indices);
+    #elif defined(_GPU_SKINNED_ON)
+    // v.pos = GetSkinnedPos(v.vertexId,v.pos); // get from buffer
+        CalcSkinnedPos(v.vertexId,v.vertex/**/,v.normal/**/,v.tangent/**/,v.weights,v.indices);
+    #endif
+
     v2f o = (v2f)0;
     o.vertex = TransformObjectToHClip(v.vertex.xyz);
     o.uv = float4(v.uv,TRANSFORM_TEX(v.uv, _MainTex));

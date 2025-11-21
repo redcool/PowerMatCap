@@ -55,6 +55,19 @@ half _FogNoiseOn;
 half _DepthFogOn;
 half _HeightFogOn;
 
+//---------------------------------------- animTexture
+half _StartFrame;
+half _EndFrame;
+half _AnimSampleRate;
+half _Loop;
+half _NextStartFrame;
+half _NextEndFrame;
+half _CrossLerp;
+half _PlayTime;
+half _OffsetPlayTime;
+            
+half4 _AnimTex_TexelSize;
+
 CBUFFER_END
 
 #endif //POWER_MATCAP_INPUT_HLSL
