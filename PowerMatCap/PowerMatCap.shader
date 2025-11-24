@@ -23,8 +23,9 @@
         [GroupItem(Effects)]_DissolveNoiseTex ("_DissolveNoiseTex", 2D) = "white" {}
         [GroupItem(Effects)]_DissolveNoiseScale ("_DissolveNoiseScale", range(0,4)) = 0
         // [GroupEnum(Effects,r g b a,0 1 2 3)] _DissolveTexChannel("_DissolveTexChannel",float) = 0
-        [GroupItem(Effects)] _MaxLocalPos("_MaxLocalPos",vector) = (0,2,0,0)
-        [GroupVectorSlider(Effects,min max noiseEdge noiseEdgeOffset,0_1 0_1 0_1 0_.1,dissolve smooth)]_DissolveRange("_DissolveRange",vector) = (0,1,0.02,0)
+        [GroupItem(Effects, min local positoin )] _MinLocalPos("_MinLocalPos",vector) = (-1,0,-1,0)
+        [GroupItem(Effects, max local position )] _MaxLocalPos("_MaxLocalPos",vector) = (1,2,1,0)
+        [GroupVectorSlider(Effects,min max noiseEdge noiseEdgeOffset,0_1 0_1 0_1 0_1,dissolve smooth)]_DissolveRange("_DissolveRange",vector) = (0,1,0.02,0)
         [GroupItem(Effects)]_DissolveValue("_DissolveValue",range(0,1)) = 0
 //================================================= Surface lighting
         [Group(Surface)]

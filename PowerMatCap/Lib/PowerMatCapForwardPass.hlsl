@@ -70,32 +70,31 @@ v2f vert (appdata v)
 // }
 /**
     LocalPos topDown  dissolve
+
 */
-float ApplyPosDissolve(half noise,float3 localPos,float3 maxLocalPos,float dissolveValue,float4 dissolveRange){
+float3 CalcPosDissolve(out float3 noiseMask,half3 noise,float3 localPos,float3 minLocalPos,float3 maxLocalPos,float dissolveValue,float4 dissolveRange){
     #define noiseEdge dissolveRange.z
     #define noiseEdgeOffset dissolveRange.w
 
-    float yRate = (localPos.y/maxLocalPos.y);
-    // noise mask
-    float noiseMask = abs(yRate- dissolveValue + noiseEdgeOffset);
+    float3 posRate = (localPos - minLocalPos)/(maxLocalPos - minLocalPos);
+    // posRate = dissolveValue - posRate;
+
+    float3 rate = dissolveValue - posRate ;
+
+    // noise mask ,a stripe
+    noiseMask = abs(posRate - dissolveValue + noiseEdgeOffset);
     noiseMask = smoothstep(noiseEdge,0,noiseMask);
-    // apply noiseMask
     noise *= noiseMask;
-    // return noise;
     
-    float rate = (dissolveValue -yRate);
+    rate += noise;
     rate = smoothstep(dissolveRange.x,dissolveRange.y,rate);
-    rate +=noise;
-    rate = saturate(rate);
-    clip(rate-0.01);
-    return rate;
+    return saturate(rate);
 }
 
 half4 frag (v2f input,
     out float4 outputNormal:SV_TARGET1,
     out float4 outputMotionVectors:SV_TARGET2
-) : SV_Target
-{
+) : SV_Target{
     TANGENT_SPACE_SPLIT(input);
 
     #if defined(_NORMAL)
@@ -112,11 +111,26 @@ half4 frag (v2f input,
     #endif
 
     half dissolveAlphaRate = 1;
+    half3 dissolveEmissionColor = 0;
     #if defined(_DISSOLVE_ON)
-        half noise = SAMPLE_TEXTURE2D(_DissolveNoiseTex,sampler_DissolveNoiseTex,input.uv.xy * _DissolveNoiseTex_ST.xy+ _DissolveNoiseTex_ST.zw);
+        half3 noise = SAMPLE_TEXTURE2D(_DissolveNoiseTex,sampler_DissolveNoiseTex,input.uv.xy * _DissolveNoiseTex_ST.xy+ _DissolveNoiseTex_ST.zw);
         noise *=_DissolveNoiseScale;
 
-         ApplyPosDissolve(noise,input.localPos.xyz,_MaxLocalPos.xyz,_DissolveValue,_DissolveRange);
+        half3 noiseMask = 0;
+        half3 clipRate = 1;
+        half3 alphaRate = CalcPosDissolve(noiseMask/**/,noise,input.localPos.xyz,_MinLocalPos.xyz,_MaxLocalPos.xyz,_DissolveValue,_DissolveRange);
+        clip(alphaRate.y -0.01);
+        
+        /*
+         dissolve edge emission color
+        */
+        // dissolveEmissionColor = noiseMask.y;
+
+        /**
+        dissolve alpha
+        */
+        // alphaRate = smoothstep(.2,.3,alphaRate);
+        // dissolveAlphaRate = alphaRate.y;
     #endif
 
     // mask
@@ -208,6 +222,7 @@ half4 frag (v2f input,
         emissionColor += CalcEmission(SAMPLE_TEXTURE2D(_EmissionMap,sampler_EmissionMap,input.uv),_EmissionColor.xyz,_EmissionColor.w);
     #endif
     col.xyz += emissionColor;
+    col.xyz += dissolveEmissionColor;
 //------ fog
     // col.rgb = MixFog(col.xyz,i.fogFactor.x);
     BlendFogSphereKeyword(col.rgb/**/,worldPos,input.fogCoord.xy,_HeightFogOn,_FogNoiseOn,_DepthFogOn); // 2fps

@@ -74,7 +74,7 @@ half4 _AnimTex_TexelSize;
 // half _DissolveTexChannel;
 half _DissolveValue;
 half4 _DissolveRange;
-half3 _MaxLocalPos;
+half3 _MaxLocalPos,_MinLocalPos;
 
 half4 _DissolveNoiseTex_ST;
 half _DissolveNoiseScale;
