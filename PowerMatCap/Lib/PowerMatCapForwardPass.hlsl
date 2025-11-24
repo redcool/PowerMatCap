@@ -119,7 +119,7 @@ half4 frag (v2f input,
         half3 noiseMask = 0;
         half3 clipRate = 1;
         half3 alphaRate = CalcPosDissolve(noiseMask/**/,noise,input.localPos.xyz,_MinLocalPos.xyz,_MaxLocalPos.xyz,_DissolveValue,_DissolveRange);
-        clip(alphaRate.y -0.01);
+        clip(alphaRate.y -0.001);
         
         /*
          dissolve edge emission color
