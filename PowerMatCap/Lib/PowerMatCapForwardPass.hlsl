@@ -138,7 +138,6 @@ half4 frag (v2f input,
     float matCapMask = maskTex.x;
     float iblMask = maskTex.y;
     
-    float nl = saturate(dot(_MainLightPosition.xyz,normal));// * 0.5+0.5;;
     float4 matCap = SampleMatCap(_MatCap,sampler_MatCap,normal,_MatCap_ST,_MatCapAngle);
     // matCap.xyz = pow(matCap.xyz,_MatCapWidth.z);
     matCap.xyz += smoothstep(_MatCapWidth.x,_MatCapWidth.y,matCap.xyz);
@@ -160,6 +159,7 @@ half4 frag (v2f input,
     float3 lightDir = mainLight.direction;
     float3 viewDir = normalize(_WorldSpaceCameraPos - worldPos);
 
+    float nl = saturate(dot(lightDir,normal));// * 0.5+0.5;;
     float3 h = normalize(lightDir + viewDir);
     float nv = saturate(dot(normal,viewDir));
     float nh = saturate(dot(normal,h));
